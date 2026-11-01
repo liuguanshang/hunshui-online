@@ -1,7 +1,7 @@
 {
   "name": "hunshui-online",
   "version": "1.0.0",
-  "description": "浑水摸鱼：好友联机网页小游戏（零依赖 Node 服务器）",
+  "description": "别捞我：好友联机网页小游戏（零依赖 Node 服务器）",
   "main": "server.js",
   "scripts": {
     "build": "node scripts/fetch-fonts.mjs",

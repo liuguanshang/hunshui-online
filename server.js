@@ -1,4 +1,4 @@
-// 浑水摸鱼 联机服务器：静态文件 + 房间广播（WebSocket，零依赖）
+// 别捞我 联机服务器：静态文件 + 房间广播（WebSocket，零依赖）
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -111,4 +111,4 @@ setInterval(() => {
   }
 }, 25000);
 
-server.listen(PORT, () => console.log('浑水摸鱼 running on port ' + PORT));
+server.listen(PORT, () => console.log('别捞我 running on port ' + PORT));
