@@ -6,7 +6,7 @@ const crypto = require('crypto');
 
 const PORT = process.env.PORT || 3000;
 const PUB = path.join(__dirname, 'public');
-const MAX_ROOM = 8;            // 每个房间最多几个人
+const MAX_ROOM = 10;           // 每个房间最多几个人（6 人上场 + 观战）
 const MAX_MSG = 64 * 1024;     // 单条消息上限
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.mp3': 'audio/mpeg', '.woff2': 'font/woff2', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.json': 'application/json' };

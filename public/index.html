@@ -7,13 +7,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>浑水摸鱼</title>
 <link rel="stylesheet" href="fonts/fonts.css">
-</head>
-<body>
 <style>
-/* 布局：9:16 画框居中；画布是庙会金鱼摊的水盆俯视图，上方 HUD、下方操作条压在盆沿外，弹层是灯笼纸卡片 */
+/* 布局：9:16 画框居中；画布是当前场景的俯视图，上方 HUD、下方操作条；弹层是纸卡片 */
 :root{
   --night:#151019;
-  --wood:#2b1a12;
   --paper:#fff3dc;
   --paper-2:#f3dfb8;
   --ink:#2a1a10;
@@ -35,7 +32,7 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--body)
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   box-sizing:border-box;overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 #wrap{height:100%;display:grid;place-items:center;padding-block:8px;box-sizing:border-box}
-#frame{position:relative;width:340px;aspect-ratio:9/16;overflow:hidden;border-radius:18px;background:var(--wood);box-shadow:0 20px 60px rgba(0,0,0,.55)}
+#frame{position:relative;width:340px;aspect-ratio:9/16;overflow:hidden;border-radius:18px;background:#2b1a12;box-shadow:0 20px 60px rgba(0,0,0,.55)}
 #cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
 
 .btn{font-family:var(--display);font-size:18px;line-height:1;border:0;border-radius:14px;min-height:48px;padding:0 16px;cursor:pointer;
@@ -45,11 +42,11 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--body)
 .btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .btn.paper{background:var(--paper);color:var(--ink);box-shadow:0 4px 0 #cdb48b}
 .btn.paper:active:not(:disabled){box-shadow:0 1px 0 #cdb48b}
-.btn.ghost{background:transparent;color:var(--muted);box-shadow:none;min-height:40px;font-family:var(--body);font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.btn.ghost{background:transparent;color:var(--muted);box-shadow:none;min-height:36px;font-family:var(--body);font-size:14px;text-decoration:underline;text-underline-offset:3px}
 .btn:disabled{opacity:.45;cursor:default}
 
-.card{position:absolute;left:12px;right:12px;bottom:12px;background:var(--paper);color:var(--ink);border-radius:20px;padding:18px 16px 14px;
-  display:flex;flex-direction:column;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.4);box-sizing:border-box}
+.card{position:absolute;left:12px;right:12px;bottom:12px;max-height:calc(100% - 24px);overflow-y:auto;overscroll-behavior:contain;background:var(--paper);color:var(--ink);border-radius:20px;padding:16px 16px 12px;
+  display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.4);box-sizing:border-box}
 .card::before{content:"";position:absolute;inset:6px;border:1.5px dashed rgba(226,59,46,.35);border-radius:15px;pointer-events:none}
 .card h2{margin:0;font-family:var(--display);font-weight:400;font-size:24px;line-height:1.15;text-wrap:balance}
 .card p{margin:0;font-size:13px;line-height:1.6;color:#6b5240}
@@ -58,47 +55,54 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--body)
 .row>*{flex:1;min-width:0}
 .field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:12px;color:var(--muted)}
-.field input{font-family:var(--body);font-size:16px;color:var(--ink);background:#fffaf0;border:2px solid var(--paper-2);border-radius:12px;padding:10px 12px;width:100%;box-sizing:border-box;user-select:text;-webkit-user-select:text}
+.field input{font-family:var(--body);font-size:16px;color:var(--ink);background:#fffaf0;border:2px solid var(--paper-2);border-radius:12px;padding:9px 12px;width:100%;box-sizing:border-box;user-select:text;-webkit-user-select:text}
 .field input:focus{outline:none;border-color:var(--red)}
 .code-in{font-family:var(--num)!important;font-weight:800;font-size:28px!important;letter-spacing:.35em;text-align:center;text-transform:lowercase}
-.note{font-size:12px;line-height:1.5;color:var(--muted);text-align:center}
+.note{font-size:12px;line-height:1.5;color:var(--muted);text-align:center;margin:0}
 
-/* 标题 */
-.logo{position:absolute;left:0;right:0;top:12%;text-align:center;pointer-events:none}
-.logo .t{font-family:var(--brush);font-size:62px;white-space:nowrap;line-height:1;color:var(--paper);text-shadow:0 3px 0 var(--red-d),0 8px 24px rgba(0,30,60,.5);letter-spacing:.04em}
-.logo .seal{display:inline-grid;place-items:center;width:34px;height:34px;background:var(--red);color:var(--paper);font-family:var(--brush);font-size:24px;border-radius:6px;transform:rotate(-6deg);margin-left:4px;vertical-align:top;box-shadow:0 2px 0 var(--red-d)}
-.logo .sub{margin-top:12px;display:inline-block;font-size:14px;color:var(--ink);background:rgba(255,243,220,.92);padding:6px 14px;border-radius:999px}
+.logo{position:absolute;left:0;right:0;top:9%;text-align:center;pointer-events:none}
+.logo .t{font-family:var(--brush);font-size:60px;white-space:nowrap;line-height:1;color:var(--paper);text-shadow:0 3px 0 var(--red-d),0 8px 24px rgba(0,30,60,.5);letter-spacing:.04em}
+.logo .seal{display:inline-grid;place-items:center;width:32px;height:32px;background:var(--red);color:var(--paper);font-family:var(--brush);font-size:22px;border-radius:6px;transform:rotate(-6deg);margin-left:4px;vertical-align:top;box-shadow:0 2px 0 var(--red-d)}
+.logo .sub{margin-top:10px;display:inline-block;font-size:14px;color:var(--ink);background:rgba(255,243,220,.92);padding:6px 14px;border-radius:999px}
 .title-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.title-grid .wide{grid-column:1/-1}
 .sec{font-size:11px;color:var(--muted);letter-spacing:.08em;display:flex;align-items:center;gap:8px}
 .sec::after{content:"";flex:1;height:1px;background:var(--paper-2)}
 
-/* 房间 */
-.code-big{font-family:var(--num);font-weight:800;font-size:44px;letter-spacing:.3em;text-align:center;color:var(--red);line-height:1;padding-left:.3em}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:2px 4px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:2px solid var(--paper-2);background:#fffaf0;border-radius:12px;padding:7px 11px;font-family:var(--display);font-size:15px;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:58px}
+.chip small{font-family:var(--body);font-size:10px;color:var(--muted)}
+.chip[aria-pressed="true"]{border-color:var(--red);background:var(--red);color:var(--paper)}
+.chip[aria-pressed="true"] small{color:rgba(255,243,220,.85)}
+.chip:disabled{cursor:default}
+.chip:focus-visible{outline:2px solid var(--ink)}
+
+.code-big{font-family:var(--num);font-weight:800;font-size:40px;letter-spacing:.3em;text-align:center;color:var(--red);line-height:1;padding-left:.3em}
 .seg{display:flex;background:var(--paper-2);border-radius:12px;padding:4px;gap:4px}
-.seg button{flex:1;border:0;border-radius:9px;background:transparent;font-family:var(--display);font-size:16px;color:var(--ink);min-height:40px;cursor:pointer}
+.seg button{flex:1;border:0;border-radius:9px;background:transparent;font-family:var(--display);font-size:15px;color:var(--ink);min-height:38px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--red);color:var(--paper)}
 .seg button:focus-visible{outline:2px solid var(--ink)}
-.players{display:flex;flex-direction:column;gap:6px}
-.pl{display:flex;align-items:center;gap:10px;background:#fffaf0;border-radius:12px;padding:9px 12px;font-size:14px}
-.pl .rt{margin-left:auto;font-family:var(--display);font-size:14px;padding:3px 10px;border-radius:999px;background:var(--paper-2);color:var(--ink)}
+.players{display:flex;flex-direction:column;gap:5px}
+.pl{display:flex;align-items:center;gap:10px;background:#fffaf0;border-radius:12px;padding:8px 12px;font-size:14px}
+.pl .rt{margin-left:auto;font-family:var(--display);font-size:13px;padding:3px 10px;border-radius:999px;background:var(--paper-2);color:var(--ink)}
 .pl .rt.fish{background:#ffd9a8}
 .pl .rt.net{background:#ffc7c0}
 .pl .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);flex:none}
 .pl.wait{color:var(--muted)}
 .pl.wait .dot{background:var(--paper-2);animation:blink 1s steps(2) infinite}
 @keyframes blink{50%{opacity:.2}}
+.count{display:flex;justify-content:center;gap:14px;font-size:13px;color:var(--muted)}
+.count b{font-family:var(--num);font-weight:800;color:var(--ink);font-size:16px}
 
-/* HUD 与操作条 */
 #hud{position:absolute;left:0;right:0;top:0;height:8.75%;display:flex;align-items:center;gap:6px;padding:0 50px 0 10px;box-sizing:border-box;pointer-events:none}
-.pill{background:rgba(255,243,220,.95);color:var(--ink);border-radius:999px;padding:5px 11px;display:flex;align-items:baseline;gap:3px;font-variant-numeric:tabular-nums}
-.pill b{font-family:var(--num);font-weight:800;font-size:18px;line-height:1}
+.pill{background:rgba(255,243,220,.95);color:var(--ink);border-radius:999px;padding:5px 10px;display:flex;align-items:baseline;gap:3px;font-variant-numeric:tabular-nums}
+.pill b{font-family:var(--num);font-weight:800;font-size:17px;line-height:1}
 .pill small{font-size:11px;color:var(--muted)}
 .pill.warn b{color:var(--red)}
-.role{font-family:var(--display);font-size:14px;color:var(--paper);background:rgba(0,0,0,.35);padding:5px 10px;border-radius:999px}
+.role{font-family:var(--display);font-size:14px;color:var(--paper);background:rgba(0,0,0,.35);padding:5px 10px;border-radius:999px;white-space:nowrap}
 .hud-sp{flex:1}
-.nets{display:flex;gap:5px;align-items:center}
-.poi{width:20px;height:20px;border-radius:50%;box-sizing:border-box;border:3px solid var(--red);background:conic-gradient(rgba(255,255,255,.95) calc(var(--d,100)*1%),rgba(255,255,255,.12) 0)}
+.nets{display:flex;gap:4px;align-items:center}
+.poi{width:18px;height:18px;border-radius:50%;box-sizing:border-box;border:3px solid var(--acc,var(--red));background:conic-gradient(rgba(255,255,255,.95) calc(var(--d,100)*1%),rgba(255,255,255,.12) 0)}
 .poi.used{border-color:#6a4a3a;background:transparent;opacity:.5}
 #ctrl{position:absolute;left:0;right:0;bottom:0;height:8.75%;display:flex;align-items:center;gap:8px;padding:0 12px;box-sizing:border-box}
 .tool{font-family:var(--display);font-size:15px;border:0;border-radius:12px;height:38px;padding:0 12px;background:var(--paper);color:var(--ink);display:flex;align-items:center;gap:6px;cursor:pointer;box-shadow:0 3px 0 #cdb48b;flex:none;touch-action:manipulation}
@@ -107,55 +111,61 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--body)
 .tool:disabled{opacity:.4}
 .tool:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #cdb48b}
 .tool:focus-visible{outline:2px solid var(--gold)}
-.chint{margin:0;font-size:12px;line-height:1.35;color:rgba(255,243,220,.8);min-width:0}
+.chint{margin:0;font-size:12px;line-height:1.35;color:rgba(255,243,220,.85);min-width:0}
 
 #mute{position:absolute;top:calc(4.375% - 15px);right:10px;z-index:6;width:32px;height:30px;border:0;border-radius:999px;background:rgba(255,243,220,.95);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
 #mute:focus-visible{outline:2px solid var(--gold)}
 #banner{position:absolute;left:0;right:0;top:38%;text-align:center;font-family:var(--brush);font-size:72px;color:var(--paper);text-shadow:0 4px 0 var(--red-d),0 10px 30px rgba(0,0,0,.4);pointer-events:none;animation:bn .35s ease-out}
 @keyframes bn{from{transform:scale(1.4);opacity:0}to{transform:scale(1);opacity:1}}
-#toast{position:absolute;left:50%;top:11%;transform:translateX(-50%);background:var(--paper);color:var(--ink);font-family:var(--display);font-size:16px;padding:8px 16px;border-radius:999px;white-space:nowrap;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.3);animation:tt .2s ease-out}
+#toast{position:absolute;left:50%;top:11%;transform:translateX(-50%);background:var(--paper);color:var(--ink);font-family:var(--display);font-size:16px;padding:8px 16px;border-radius:999px;white-space:nowrap;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.3);animation:tt .2s ease-out;z-index:7}
 @keyframes tt{from{transform:translate(-50%,-6px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 
-/* 结算 */
-.end-big{font-family:var(--brush);font-size:52px;line-height:1;text-align:center;color:var(--red)}
+.end-big{font-family:var(--brush);font-size:50px;line-height:1;text-align:center;color:var(--red)}
 .end-big.win{color:#1f8f74}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .stat{background:#fffaf0;border-radius:12px;padding:8px 6px;text-align:center}
 .stat b{display:block;font-family:var(--num);font-weight:800;font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums}
 .stat span{font-size:11px;color:var(--muted)}
+.fates{display:flex;flex-direction:column;gap:5px}
+.fate{display:flex;align-items:center;gap:8px;background:#fffaf0;border-radius:12px;padding:8px 12px;font-size:13px}
+.fate b{font-family:var(--display);font-weight:400;font-size:15px}
+.fate span{margin-left:auto;color:var(--muted);text-align:right}
+.fate.alive span{color:#1f8f74}
 
-#s-rules .card{top:12px;overflow-y:auto}
-.rules{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
-.rules li{display:flex;gap:10px;font-size:13.5px;line-height:1.6;color:var(--ink)}
+#s-rules .card{top:12px}
+.rules{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.rules li{display:flex;gap:10px;font-size:13px;line-height:1.6;color:var(--ink)}
 .rules li i{font-style:normal;flex:none;width:24px;height:24px;border-radius:50%;background:var(--red);color:var(--paper);font-family:var(--display);font-size:13px;display:grid;place-items:center;margin-top:1px}
 @media (prefers-reduced-motion:reduce){#banner,#toast{animation:none}.pl.wait .dot{animation:none}}
 </style>
-
+</head>
+<body>
 <div id="wrap">
   <div id="frame">
-    <canvas id="cv" aria-label="金鱼水盆"></canvas>
+    <canvas id="cv" aria-label="游戏画面"></canvas>
 
     <div id="hud" hidden>
       <div class="pill" id="h-time-p"><b id="h-time">75</b><small>秒</small></div>
       <div class="role" id="h-role">捞鱼人</div>
       <div class="hud-sp"></div>
-      <div class="nets" id="h-nets" aria-label="纸网"></div>
-      <div class="pill"><small>错</small><b id="h-wrong">0</b></div>
+      <div class="nets" id="h-nets" aria-label="工具耐久"></div>
+      <div class="pill"><small>真鱼</small><b id="h-left">1</b></div>
     </div>
 
     <div id="ctrl" hidden>
       <button class="tool" id="t-food" aria-pressed="false">撒饵<b id="t-food-n">2</b></button>
       <button class="tool" id="t-knock">敲盆<b id="t-knock-n">1</b></button>
       <button class="tool" id="t-spit">吐口水<b id="t-spit-n">2</b></button>
-      <p class="chint" id="c-hint">点水面下网，网会慢慢沉下去再捞起</p>
+      <p class="chint" id="c-hint"></p>
     </div>
 
-    <!-- 标题 -->
     <section class="screen" id="s-title">
-      <div class="logo"><div class="t">浑水摸鱼<span class="seal">捞</span></div><div class="sub">一盆金鱼，只有一条是人</div></div>
+      <div class="logo"><div class="t">浑水摸鱼<span class="seal">捞</span></div><div class="sub">一群鱼里，混着真人</div></div>
       <div class="card">
         <div class="field"><label for="in-nick">你的昵称</label><input id="in-nick" maxlength="8" autocomplete="off" value="小鱼干"></div>
-        <div class="sec">和好友联机</div>
+        <div class="sec">选场景</div>
+        <div class="chips" id="scene-title" role="group" aria-label="选场景"></div>
+        <div class="sec">和好友联机（2～6 人）</div>
         <div class="title-grid">
           <button class="btn" id="go-create">开房间</button>
           <button class="btn" id="go-join">输入房间号</button>
@@ -163,60 +173,62 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--body)
         <p class="note" id="online-note" hidden></p>
         <div class="sec">一个人先练练</div>
         <div class="title-grid">
-          <button class="btn paper" id="go-pnet">我来捞</button>
+          <button class="btn paper" id="go-pnet">我来抓</button>
           <button class="btn paper" id="go-pfish">我来藏</button>
         </div>
         <button class="btn ghost" id="go-rules">怎么玩</button>
       </div>
     </section>
 
-    <!-- 规则 -->
     <section class="screen" id="s-rules" hidden>
       <div class="card">
         <div class="eyebrow">How to play</div>
-        <h2>一个藏，一个捞</h2>
+        <h2>一边藏，一边抓</h2>
         <ul class="rules">
-          <li><i>鱼</i><span>你是盆里 18 条金鱼中的一条。按住水面游过去，松手会慢慢停下。学其他鱼：会发呆、会结伴，看到饵会冲，网一下水就会逃。</span></li>
-          <li><i>捞</i><span>点一下水面下网，网要大约 0.75 秒才沉下去捞起，反应快的鱼来得及逃。每下一次网、每多捞一条鱼，纸网都会更破，一次捞太多会直接破掉。一共 3 张网。</span></li>
-          <li><i>错</i><span>捞错的鱼会被拿走，盆里越来越空，真鱼越来越难藏。</span></li>
-          <li><i>饵</i><span>捞鱼人能撒 2 次饵、敲 1 次盆，看谁的反应不自然。鱼可以双击屏幕冲刺，装作受惊；还能吐 2 次口水，让捞鱼人眼前一花，1.5 秒看不清。</span></li>
-          <li><i>胜</i><span>75 秒内捞到真鱼，捞鱼人赢；时间到或者网用完，鱼赢。</span></li>
+          <li><i>人</i><span>2～6 人一起玩，每个人自己选当鱼还是抓鱼的，也可以观战。</span></li>
+          <li><i>鱼</i><span>你混在一群 AI 鱼里。按住水面游过去，双击冲刺。学其他鱼：会发呆、会结伴，看到饵会冲，工具下水会逃。</span></li>
+          <li><i>抓</i><span>点一下水面出手，工具要大约 0.75 秒才落到位，反应快的鱼来得及逃。每出手一次、每多抓一条鱼，工具都会更破，一次抓太多会直接坏掉。每人 3 次机会。</span></li>
+          <li><i>饵</i><span>抓鱼的人能撒 2 次饵、敲 1 次盆，看谁的反应不自然。鱼能吐 2 次口水，让抓鱼的人 1.5 秒看不清。</span></li>
+          <li><i>胜</i><span>75 秒内抓光所有真鱼，抓鱼方赢；时间到或工具全坏，只要还有一条真鱼活着，鱼方赢。</span></li>
         </ul>
         <button class="btn" id="rules-ok">明白了</button>
       </div>
     </section>
 
-    <!-- 加入 -->
     <section class="screen" id="s-join" hidden>
       <div class="card">
-        <div class="eyebrow">Join a pond</div>
+        <div class="eyebrow">Join a room</div>
         <h2>输入房间号</h2>
         <p>好友开房间后会看到 4 位房间号，也可以直接点他发来的邀请链接。</p>
         <div class="field"><label for="in-nick2">你的昵称</label><input id="in-nick2" maxlength="8" autocomplete="off"></div>
-        <div class="field"><label for="in-code">房间号</label><input id="in-code" class="code-in" maxlength="4" autocomplete="off" inputmode="latin" placeholder="····"></div>
+        <div class="field"><label for="in-code">房间号</label><input id="in-code" class="code-in" maxlength="4" autocomplete="off" placeholder="····"></div>
         <button class="btn" id="join-go">进入房间</button>
         <button class="btn paper" id="join-back">返回</button>
       </div>
     </section>
 
-    <!-- 房间 -->
     <section class="screen" id="s-room" hidden>
       <div class="card">
-        <div class="eyebrow">Room code</div>
-        <div class="code-big" id="room-code">----</div>
-        <p id="room-tip" style="text-align:center">让好友打开这个页面，点「输入房间号」。</p>
-        <div class="seg" id="role-seg" role="group" aria-label="选择身份">
-          <button id="role-fish" aria-pressed="false">我来藏（鱼）</button>
-          <button id="role-net" aria-pressed="true">我来捞</button>
+        <div class="row" style="align-items:center">
+          <div><div class="eyebrow">Room code</div><div class="code-big" id="room-code" style="text-align:left;padding-left:0">----</div></div>
+          <button class="btn paper" id="room-copy" style="flex:0 0 auto;font-size:15px;min-height:42px">复制邀请链接</button>
         </div>
+        <div class="sec" id="scene-room-label">场景（房主选）</div>
+        <div class="chips" id="scene-room" role="group" aria-label="场景"></div>
+        <div class="sec">我当</div>
+        <div class="seg" role="group" aria-label="选择身份">
+          <button id="role-fish" aria-pressed="false">鱼</button>
+          <button id="role-net" aria-pressed="false">抓鱼的</button>
+          <button id="role-watch" aria-pressed="false">观战</button>
+        </div>
+        <div class="count" id="room-count"></div>
         <div class="players" id="players"></div>
-        <button class="btn paper" id="room-copy">复制邀请链接</button>
+        <p class="note" id="room-tip"></p>
         <button class="btn" id="room-start" disabled>开始</button>
-        <button class="btn paper" id="room-leave">离开房间</button>
+        <button class="btn ghost" id="room-leave">离开房间</button>
       </div>
     </section>
 
-    <!-- 结算 -->
     <section class="screen" id="s-end" hidden>
       <div class="card" id="end-card"></div>
     </section>
@@ -226,126 +238,193 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--body)
     <div id="toast" hidden></div>
   </div>
 </div>
-
 <script>
 /* ================= 手感参数 ================= */
 const CFG = {
-  fishCount: 18, duration: 75, nets: 3,
-  netR: 28, castDrop: .15, castResolve: .75, castTotal: 1.05, fleeChance: .6, castCost: 15, fishWeight: 30,
+  duration: 75, nets: 3, maxPlayers: 6,
+  netR: 28, castDrop: .15, castResolve: .75, castTotal: 1.05, castCost: 15, fishWeight: 30, fleeChance: .6,
   turn: 3.0, accel: 70, dartSpeed: 118, dartTime: .45,
-  playerMax: 42, fleeR: 62, foodR: 160, foodSpeed: 52, foodUses: 2, knockUses: 1, spitUses: 2, spitBlind: 1.5, spitCover: .8,
+  playerMax: 42, fleeR: 62, foodR: 160, foodSpeed: 52, foodUses: 2, knockUses: 1,
+  spitUses: 2, spitBlind: 1.5, spitCover: .8, cutTime: 3.0,
   pond: { x: 24, y: 74, w: 312, h: 492 },
 };
 const W = 360, H = 640, TAU = Math.PI * 2;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, k) => a + (b - a) * k;
 const angDiff = (a, b) => { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return d; };
 function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 const rid = () => Math.random().toString(36).slice(2, 9);
 
-/* ================= 金鱼外观（由种子决定，两端一致） ================= */
-const TYPES = [
-  { body:'#f0462f', ridge:'rgba(255,196,160,.55)', fin:'rgba(255,112,82,.55)' },
-  { body:'#ff8c22', ridge:'rgba(255,228,165,.6)', fin:'rgba(255,170,84,.5)' },
-  { body:'#fff6ee', ridge:'rgba(255,255,255,.75)', fin:'rgba(255,255,255,.55)', spots:['#ee3d2b'] },
-  { body:'#f4ece0', ridge:'rgba(255,255,255,.55)', fin:'rgba(255,255,255,.5)', spots:['#e8452e','#2a2a30','#f39a3b'] },
-  { body:'#2b2a31', ridge:'rgba(140,140,160,.5)', fin:'rgba(40,40,52,.55)' },
-];
-const TYPE_W = [5, 4, 4, 3, 2];
-function appearances(seed){
-  const r = mulberry32(seed ^ 0x5bd1e995), out = [];
-  const tot = TYPE_W.reduce((a,b)=>a+b, 0);
-  for (let i=0;i<CFG.fishCount;i++){
-    let k = r()*tot, ty = 0; while (k > TYPE_W[ty]) { k -= TYPE_W[ty]; ty++; }
-    out.push({ type: ty, size: .86 + r()*.3, spots: Array.from({length: 3 + Math.floor(r()*3)}, () => ({ u: r()*.9 - .42, v: r()*.9 - .45, s: .16 + r()*.2, c: Math.floor(r()*3) })) });
+/* ================= 鱼种（俯视） =================
+   L/W 体长体宽；tail: fan 金鱼扇尾 | veil 长飘尾 | fork 叉尾 | round 圆尾
+   pat: spots 斑点 | bands 横带 | line 背线 | wavy 波纹 | neon 霓虹 | mottle 杂斑 */
+const SPECIES = {
+  pond: [
+    { n: '红金鱼', w: 5, L: 24, W: 11, body: '#f0462f', ridge: 'rgba(255,196,160,.55)', fin: 'rgba(255,112,82,.55)', tail: 'fan' },
+    { n: '橙金鱼', w: 4, L: 24, W: 11, body: '#ff8c22', ridge: 'rgba(255,228,165,.6)', fin: 'rgba(255,170,84,.5)', tail: 'fan' },
+    { n: '红白锦鲤', w: 4, L: 26, W: 10, body: '#fff6ee', ridge: 'rgba(255,255,255,.75)', fin: 'rgba(255,255,255,.55)', tail: 'fan', pat: 'spots', pc: ['#ee3d2b'] },
+    { n: '三色锦鲤', w: 3, L: 26, W: 10, body: '#f4ece0', ridge: 'rgba(255,255,255,.55)', fin: 'rgba(255,255,255,.5)', tail: 'fan', pat: 'spots', pc: ['#e8452e', '#2a2a30', '#f39a3b'] },
+    { n: '黑金鱼', w: 2, L: 22, W: 11, body: '#2b2a31', ridge: 'rgba(140,140,160,.5)', fin: 'rgba(40,40,52,.55)', tail: 'fan' },
+  ],
+  sea: [
+    { n: '黄高鳍', w: 4, L: 22, W: 13, body: '#ffd21f', ridge: 'rgba(255,245,180,.6)', fin: 'rgba(255,220,60,.7)', tail: 'fork', tc: '#ffd21f' },
+    { n: '蓝倒吊', w: 4, L: 24, W: 12, body: '#2f6fe0', ridge: 'rgba(150,190,255,.5)', fin: 'rgba(40,90,200,.7)', tail: 'fork', tc: '#ffd21f', pat: 'line', pc: ['#142040'] },
+    { n: '小丑鱼', w: 4, L: 20, W: 10, body: '#ff7a1a', ridge: 'rgba(255,200,140,.4)', fin: 'rgba(255,140,40,.7)', tail: 'round', tc: '#ff7a1a', pat: 'bands', pc: ['#ffffff', '#1d1d24'] },
+    { n: '沙丁鱼', w: 5, L: 22, W: 7, body: '#c3d2de', ridge: 'rgba(60,95,130,.8)', fin: 'rgba(200,215,230,.6)', tail: 'fork', tc: '#a9bccb' },
+    { n: '鹦嘴鱼', w: 3, L: 26, W: 12, body: '#36c1a6', ridge: 'rgba(170,255,230,.5)', fin: 'rgba(255,120,170,.6)', tail: 'round', tc: '#ff7ab0', pat: 'spots', pc: ['#ff7ab0'] },
+  ],
+  sushi: [
+    { n: '真鲷', w: 4, L: 25, W: 11, body: '#f08a8a', ridge: 'rgba(255,200,200,.6)', fin: 'rgba(240,120,120,.6)', tail: 'fork', tc: '#e86f6f', pat: 'spots', pc: ['#7fc4ff'] },
+    { n: '鲭鱼', w: 5, L: 25, W: 9, body: '#d6e2e6', ridge: 'rgba(40,110,110,.75)', fin: 'rgba(190,210,215,.6)', tail: 'fork', tc: '#4f8f8a', pat: 'wavy', pc: ['#1f4d52'] },
+    { n: '金枪鱼', w: 3, L: 30, W: 12, body: '#c8d0dc', ridge: 'rgba(25,40,80,.9)', fin: 'rgba(255,215,60,.8)', tail: 'fork', tc: '#26355f' },
+    { n: '竹荚鱼', w: 4, L: 22, W: 8, body: '#d9dcc7', ridge: 'rgba(95,120,90,.8)', fin: 'rgba(230,220,140,.6)', tail: 'fork', tc: '#c5bb6a', pat: 'line', pc: ['#e6c95a'] },
+    { n: '比目鱼', w: 2, L: 24, W: 17, body: '#8a6a48', ridge: 'rgba(120,95,70,.5)', fin: 'rgba(140,110,80,.8)', tail: 'round', tc: '#7a5c3d', pat: 'spots', pc: ['#5a4029', '#c9a77c'] },
+  ],
+  grill: [
+    { n: '草鱼', w: 5, L: 28, W: 11, body: '#9a9550', ridge: 'rgba(70,72,30,.75)', fin: 'rgba(150,140,80,.6)', tail: 'fork', tc: '#7d7a40', pat: 'mottle', pc: ['rgba(60,60,25,.35)'] },
+    { n: '鲈鱼', w: 4, L: 26, W: 10, body: '#a8b0b4', ridge: 'rgba(60,70,80,.7)', fin: 'rgba(160,170,175,.6)', tail: 'fork', tc: '#7e878c', pat: 'spots', pc: ['#2c3236'] },
+    { n: '鲤鱼', w: 4, L: 27, W: 12, body: '#c8913f', ridge: 'rgba(110,70,20,.7)', fin: 'rgba(210,140,70,.6)', tail: 'fork', tc: '#b07030' },
+    { n: '黑鱼', w: 3, L: 28, W: 10, body: '#4a443a', ridge: 'rgba(25,22,18,.8)', fin: 'rgba(70,65,55,.7)', tail: 'round', tc: '#3a352c', pat: 'mottle', pc: ['rgba(15,12,8,.5)', 'rgba(140,130,110,.35)'] },
+    { n: '罗非鱼', w: 4, L: 24, W: 12, body: '#8f9aa6', ridge: 'rgba(55,65,80,.7)', fin: 'rgba(120,130,145,.6)', tail: 'round', tc: '#6d7885', pat: 'bands', pc: ['rgba(50,58,70,.45)'] },
+  ],
+  tank: [
+    { n: '孔雀鱼', w: 5, L: 16, W: 7, body: '#d9dde2', ridge: 'rgba(255,255,255,.5)', fin: 'rgba(255,255,255,.4)', tail: 'veil', tc: '#ff4f8b', tc2: '#4aa8ff' },
+    { n: '霓虹灯', w: 5, L: 14, W: 6, body: '#3a4250', ridge: 'rgba(80,90,110,.5)', fin: 'rgba(200,210,230,.35)', tail: 'fork', tc: '#c9d2dd', pat: 'neon', pc: ['#3df0ff', '#ff3b4f'] },
+    { n: '斗鱼', w: 3, L: 20, W: 8, body: '#c81f3c', ridge: 'rgba(255,120,150,.5)', fin: 'rgba(80,60,220,.55)', tail: 'veil', tc: '#d42a4a', tc2: '#4b3fd8' },
+    { n: '神仙鱼', w: 3, L: 20, W: 10, body: '#e6e6dd', ridge: 'rgba(255,255,255,.6)', fin: 'rgba(240,240,230,.5)', tail: 'fork', tc: '#d8d8cc', pat: 'bands', pc: ['#2a2a2a'] },
+    { n: '小金鱼', w: 3, L: 18, W: 10, body: '#ff9a2a', ridge: 'rgba(255,230,170,.6)', fin: 'rgba(255,180,90,.55)', tail: 'fan' },
+  ],
+};
+
+/* ================= 场景 ================= */
+const SCENES = {
+  pond:  { id: 'pond',  name: '池塘',   tool: 'poi',  act: '捞', actor: '捞鱼人', toolName: '纸网', tear: '纸网破了', heavy: '太重了，网破了', verb: '被装进了塑料袋', acc: '#e23b2e', knock: '敲盆' },
+  sea:   { id: 'sea',   name: '海里',   tool: 'hook', act: '钓', actor: '钓鱼佬', toolName: '鱼钩', tear: '鱼线断了', heavy: '太重了，线断了', verb: '被扔进了钓鱼佬的水桶', acc: '#f6c445', knock: '拍水' },
+  sushi: { id: 'sushi', name: '寿司店', tool: 'hand', act: '抓', actor: '寿司师傅', toolName: '手', tear: '手抽筋了', heavy: '太滑了，没抓住', verb: '被做成了寿司', acc: '#f08a8a', knock: '敲缸' },
+  grill: { id: 'grill', name: '烤鱼店', tool: 'net',  act: '捞', actor: '烤鱼师傅', toolName: '抄网', tear: '抄网破了', heavy: '太重了，网兜破了', verb: '被做成了烤鱼', acc: '#3fae5a', knock: '敲缸' },
+  tank:  { id: 'tank',  name: '鱼缸',   tool: 'paw',  act: '抓', actor: '小猫', toolName: '猫爪', tear: '小猫累了', heavy: '抓太多，爪子滑了', verb: '被小猫叼走了', acc: '#ff9a3c', knock: '拍缸' },
+};
+const SCENE_IDS = ['pond', 'sea', 'sushi', 'grill', 'tank'];
+
+function appearances(seed, scene, n){
+  const r = mulberry32(seed ^ 0x5bd1e995), list = SPECIES[scene] || SPECIES.pond, out = [];
+  const tot = list.reduce((a, s) => a + s.w, 0);
+  for (let i = 0; i < n; i++){
+    let k = r() * tot, ty = 0; while (k > list[ty].w){ k -= list[ty].w; ty++; }
+    out.push({ sp: list[ty], size: .88 + r() * .26, spots: Array.from({ length: 3 + Math.floor(r() * 4) }, () => ({ u: r() * .9 - .42, v: r() * .9 - .45, s: .14 + r() * .2, c: Math.floor(r() * 3) })) });
   }
   return out;
 }
+function fishCount(humans){ return clamp(16 + 2 * humans, 18, 26); }
 
-/* ================= 游戏模拟（由鱼方这台手机运行） ================= */
+/* ================= 游戏模拟（房主或单机运行） =================
+   humans: 真鱼玩家的 key 数组；nets: 抓鱼玩家的 key 数组；bots: 由电脑控制的 key */
 function persona(r){ return { cruise: 22 + r()*16, jitter: .6 + r()*.7, pause: .12 + r()*.16, school: .15 + r()*.2, greed: .72 + r()*.24, calm: .8 + r()*.5, bot: false }; }
 function botPersona(r){ return { cruise: 30 + r()*8, jitter: 1.35, pause: .05, school: .06, greed: .55, calm: 1.6, bot: true }; }
 
 class Game {
-  constructor(seed, opts = {}){
-    this.seed = seed; this.r = mulberry32(seed); this.app = appearances(seed); this.gid = opts.gid || rid();
+  constructor(seed, o = {}){
+    this.seed = seed; this.r = mulberry32(seed); this.gid = o.gid || rid(); this.scene = o.scene || 'pond';
+    this.humans = o.humans || []; this.netIds = o.nets || []; this.bots = new Set(o.bots || []); this.names = o.names || {};
+    this.N = o.demo ? 18 : fishCount(this.humans.length);
+    this.app = appearances(seed, this.scene, this.N);
     const P = CFG.pond; this.fish = [];
-    for (let i=0;i<CFG.fishCount;i++){
-      const a = this.r()*TAU;
+    for (let i = 0; i < this.N; i++){
+      const a = this.r() * TAU;
       this.fish.push({ x: P.x + 24 + this.r()*(P.w-48), y: P.y + 24 + this.r()*(P.h-48), a, ta: a, v: 10, tv: 20, dec: this.r()*2,
-        dartT: 0, dashCd: 0, fleeCd: 0, fleeDelay: null, knockDelay: null, notice: null, mode: 'wander', ph: this.r()*6, alive: true, p: persona(this.r) });
+        dartT: 0, dashCd: 0, fleeCd: 0, fleeDelay: null, knockDelay: null, notice: null, mode: 'wander', ph: this.r()*6, alive: true, p: persona(this.r), key: null });
     }
-    this.demo = !!opts.demo;
-    this.player = this.demo ? -1 : Math.floor(this.r()*CFG.fishCount);
-    if (opts.botFish) this.fish[this.player].p = botPersona(this.r);
+    // 给真鱼玩家分配鱼
+    const idx = [...Array(this.N).keys()];
+    for (let k = idx.length - 1; k > 0; k--){ const m = Math.floor(this.r()*(k+1)); [idx[k], idx[m]] = [idx[m], idx[k]]; }
+    this.hum = {}; this.huS = {};
+    this.humans.forEach((key, i) => { const fi = idx[i]; this.hum[key] = fi; this.fish[fi].key = key; this.huS[key] = { spit: CFG.spitUses, lastDash: 0, lastSpit: 0, caught: false, by: null };
+      if (this.bots.has(key)) this.fish[fi].p = botPersona(this.r); });
+    this.netS = {};
+    this.netIds.forEach((id, i) => { this.netS[id] = { i, nets: CFG.nets, dur: 100, cast: null, lastCast: 0, lastFood: 0, lastKnock: 0, food: CFG.foodUses, knock: CFG.knockUses, out: false }; });
+    this.demo = !!o.demo;
     this.ph = this.demo ? 'demo' : 'count'; this.cd = 3; this.tl = CFG.duration;
-    this.nets = CFG.nets; this.dur = 100; this.net = { x: 180, y: 320, down: false }; this.blocked = false;
-    this.food = []; this.foodUsed = 0; this.knockUsed = 0; this.spitUsed = 0; this.blindT = 0; this.cast = null; this.wrong = 0; this.winner = ''; this.why = '';
-    this.ev = []; this.evs = 0; this.last = { lift: 0, food: 0, knock: 0, dash: 0, spit: 0 }; this.onEvent = null; this.caughtAt = null;
+    this.food = []; this.blindT = 0; this.wrong = 0; this.winner = ''; this.why = ''; this.pendEnd = null;
+    this.cut = null; this.cutQ = [];
+    this.ev = []; this.evs = 0; this.onEvent = null;
   }
-  emit(k, x=0, y=0, c=0){ const e = { s: ++this.evs, k, x: Math.round(x), y: Math.round(y), c }; this.ev.push(e); if (this.ev.length > 8) this.ev.shift(); this.onEvent && this.onEvent(e); }
-  step(dt, fin, nin){
-    if (this.ph === 'demo' || this.ph === 'end'){ this.moveFish(dt, fin, { down: false }); return; }
+  emit(k, x = 0, y = 0, c = 0, extra){ const e = { s: ++this.evs, k, x: Math.round(x), y: Math.round(y), c }; if (extra) Object.assign(e, extra); this.ev.push(e); if (this.ev.length > 10) this.ev.shift(); this.onEvent && this.onEvent(e); }
+  aliveHumans(){ return this.humans.filter(k => !this.huS[k].caught); }
+  activeCasts(){ const a = []; for (const id in this.netS){ const c = this.netS[id].cast; if (c && c.t < CFG.castResolve) a.push(c); } return a; }
+  step(dt, fins = {}, nins = {}){
+    if (this.ph === 'demo' || this.ph === 'end'){ this.moveFish(dt, fins); return; }
+    if (this.cut){
+      this.cut.t += dt;
+      for (const f of this.fish) f.ph += 2*dt;
+      if (this.cut.t >= CFG.cutTime){ this.cut = this.cutQ.shift() || null; if (this.cut) this.cut.t = 0; else if (this.pendEnd){ const [w, why] = this.pendEnd; this.end(w, why); } }
+      return;
+    }
     if (this.ph === 'count'){ this.cd -= dt; if (this.cd <= 0){ this.ph = 'play'; this.emit('go'); } }
     else { this.tl -= dt; if (this.tl <= 0){ this.tl = 0; this.end('fish', 'time'); return; } }
     const playing = this.ph === 'play';
-    // 下网：点一下后网慢慢沉下去，castResolve 秒时判定捞起，castTotal 秒动画结束
-    if (nin.cast && nin.cast.s > this.last.lift){
-      this.last.lift = nin.cast.s;
-      if (playing && !this.cast){ this.cast = { x: nin.cast.x, y: nin.cast.y, t: 0, done: false }; this.emit('dip', nin.cast.x, nin.cast.y); }
-    }
-    if (this.cast){
-      const c = this.cast; c.t += dt;
-      this.net.x = c.x; this.net.y = c.y; this.net.down = c.t < CFG.castResolve;
-      if (!c.done && c.t >= CFG.castResolve){ c.done = true; if (playing) this.resolveLift(c.x, c.y); }
-      if (this.cast && c.t >= CFG.castTotal) this.cast = null;
-    } else this.net.down = false;
-    if (this.ph === 'end') return;
-    if (nin.food && nin.food.s > this.last.food){
-      this.last.food = nin.food.s;
-      if (playing && this.foodUsed < CFG.foodUses){
-        this.foodUsed++;
-        for (let k=0;k<4;k++) this.food.push({ x: clamp(nin.food.x + (this.r()-.5)*28, CFG.pond.x, CFG.pond.x+CFG.pond.w), y: clamp(nin.food.y + (this.r()-.5)*28, CFG.pond.y, CFG.pond.y+CFG.pond.h) });
-        this.emit('food', nin.food.x, nin.food.y);
+    for (const id in this.netS){
+      const S = this.netS[id], nin = nins[id] || {};
+      if (nin.cast && nin.cast.s > S.lastCast){
+        S.lastCast = nin.cast.s;
+        if (playing && !S.cast && !S.out){ S.cast = { x: clamp(nin.cast.x, 20, 340), y: clamp(nin.cast.y, 70, 570), t: 0, done: false, i: S.i }; this.emit('dip', S.cast.x, S.cast.y, S.i); }
+      }
+      if (S.cast){
+        const c = S.cast; c.t += dt;
+        if (!c.done && c.t >= CFG.castResolve){ c.done = true; if (playing) this.resolve(id, c.x, c.y); }
+        if (S.cast && c.t >= CFG.castTotal) S.cast = null;
+      }
+      if (nin.food && nin.food.s > S.lastFood){
+        S.lastFood = nin.food.s;
+        if (playing && S.food > 0){ S.food--;
+          for (let k = 0; k < 4; k++) this.food.push({ x: clamp(nin.food.x + (this.r()-.5)*28, CFG.pond.x, CFG.pond.x+CFG.pond.w), y: clamp(nin.food.y + (this.r()-.5)*28, CFG.pond.y, CFG.pond.y+CFG.pond.h) });
+          this.emit('food', nin.food.x, nin.food.y); }
+      }
+      if (nin.knock && nin.knock.s > S.lastKnock){
+        S.lastKnock = nin.knock.s;
+        if (playing && S.knock > 0){ S.knock--; this.emit('knock');
+          this.fish.forEach(f => { if (!f.key || f.p.bot) f.knockDelay = f.p.bot ? (this.r() < .7 ? .35 + this.r()*.5 : null) : this.r()*.3; }); }
       }
     }
-    if (nin.knock && nin.knock.s > this.last.knock){
-      this.last.knock = nin.knock.s;
-      if (playing && this.knockUsed < CFG.knockUses){
-        this.knockUsed++; this.emit('knock');
-        this.fish.forEach((f, i) => { if (i !== this.player || f.p.bot) f.knockDelay = f.p.bot ? (this.r() < .7 ? .35 + this.r()*.5 : null) : this.r()*.3; });
-      }
-    }
+    if (this.ph !== 'play' && this.ph !== 'count') return;
     this.blindT = Math.max(0, this.blindT - dt);
-    const pf = this.fish[this.player];
-    if (playing && pf && fin.spit > this.last.spit){ this.last.spit = fin.spit; this.spit(); }
-    if (playing && pf && pf.p.bot && this.net.down && this.spitUsed < CFG.spitUses && this.blindT <= 0 && Math.hypot(pf.x-this.net.x, pf.y-this.net.y) < 70 && this.r() < dt*1.4) this.spit();
-    this.moveFish(dt, fin, this.net);
+    const casts = this.activeCasts();
+    for (const key of this.humans){
+      const hs = this.huS[key], f = this.fish[this.hum[key]], fin = fins[key] || {};
+      if (hs.caught || !playing) continue;
+      if ((fin.spit || 0) > hs.lastSpit){ hs.lastSpit = fin.spit; this.spit(key); }
+      if (f.p.bot && casts.length && hs.spit > 0 && this.blindT <= 0){
+        const near = casts.some(c => Math.hypot(f.x - c.x, f.y - c.y) < 70);
+        if (near && this.r() < dt*1.4) this.spit(key);
+      }
+    }
+    if (this.cut) return;
+    this.moveFish(dt, fins);
   }
-  spit(){
-    if (this.spitUsed >= CFG.spitUses || this.blindT > 0) return;
-    this.spitUsed++; this.blindT = CFG.spitBlind;
+  spit(key){
+    const hs = this.huS[key];
+    if (!hs || hs.spit <= 0 || this.blindT > 0) return;
+    hs.spit--; this.blindT = CFG.spitBlind;
     this.emit('spit', 0, 0, Math.floor(this.r()*1e6));
   }
-  moveFish(dt, fin, net){
+  moveFish(dt, fins){
     if (!this.food.length) this.fish.forEach(f => { if (f.notice !== null && f.mode !== 'food') f.notice = null; });
-    for (let i=0;i<this.fish.length;i++){
-      const f = this.fish[i]; if (!f.alive || f.caught) continue;
-      const human = i === this.player && !f.p.bot;
-      if (human) this.human(f, fin, dt); else this.brain(f, dt, net);
-      this.kin(f, dt, human && fin.hold);
+    const casts = this.activeCasts();
+    for (const f of this.fish){
+      if (!f.alive) continue;
+      const human = f.key && !f.p.bot;
+      if (human) this.human(f, fins[f.key] || {}, dt); else this.brain(f, dt, casts);
+      this.kin(f, dt, human && fins[f.key] && fins[f.key].hold);
     }
-    // 互相让开，避免叠在一起
     const F = this.fish;
-    for (let i=0;i<F.length;i++) for (let j=i+1;j<F.length;j++){
-      const a = F[i], b = F[j]; if (!a.alive || !b.alive || a.caught || b.caught) continue;
-      const dx = b.x-a.x, dy = b.y-a.y, d = Math.hypot(dx, dy);
-      if (d > 0 && d < 15){ const p = (15-d)*.5/d; a.x -= dx*p; a.y -= dy*p; b.x += dx*p; b.y += dy*p; }
+    for (let i = 0; i < F.length; i++) for (let j = i + 1; j < F.length; j++){
+      const a = F[i], b = F[j]; if (!a.alive || !b.alive) continue;
+      const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+      if (d > 0 && d < 15){ const p = (15 - d)*.5/d; a.x -= dx*p; a.y -= dy*p; b.x += dx*p; b.y += dy*p; }
     }
-    // 吃饵
-    for (let k=this.food.length-1;k>=0;k--){
+    for (let k = this.food.length - 1; k >= 0; k--){
       const pl = this.food[k];
-      for (const f of F){ if (f.alive && !f.caught && Math.hypot(f.x-pl.x, f.y-pl.y) < 10){ this.food.splice(k, 1); f.mode = 'wander'; f.dec = .4; break; } }
+      for (const f of F){ if (f.alive && Math.hypot(f.x - pl.x, f.y - pl.y) < 10){ this.food.splice(k, 1); f.mode = 'wander'; f.dec = .4; break; } }
     }
   }
   human(f, fin, dt){
@@ -354,25 +433,30 @@ class Game {
       if (d > 8){ f.ta = Math.atan2(dy, dx); f.tv = Math.min(CFG.playerMax, d*.8); } else f.tv = 0;
     } else f.tv = 0;
     f.dashCd -= dt;
-    if (fin.dash > this.last.dash){ this.last.dash = fin.dash; if (f.dashCd <= 0){ this.dart(f, f.a + (this.r()-.5)*.5); f.dashCd = 1.2; } }
+    const hs = this.huS[f.key];
+    if ((fin.dash || 0) > hs.lastDash){ hs.lastDash = fin.dash; if (f.dashCd <= 0){ this.dart(f, f.a + (this.r()-.5)*.5); f.dashCd = 1.2; } }
   }
-  brain(f, dt, net){
+  brain(f, dt, casts){
     const p = f.p; f.fleeCd -= dt;
-    if (net.down && this.ph === 'play' && f.fleeDelay === null && f.fleeCd <= 0 && Math.hypot(f.x-net.x, f.y-net.y) < CFG.fleeR){
-      if (this.r() > (p.bot ? .62 : CFG.fleeChance)){ f.fleeCd = 1.5; }
-      else f.fleeDelay = p.bot ? .18 + this.r()*.35 : (.1 + this.r()*.4)*p.calm;
+    if (casts.length && this.ph === 'play' && f.fleeDelay === null && f.fleeCd <= 0){
+      let near = null, nd = CFG.fleeR;
+      for (const c of casts){ const d = Math.hypot(f.x - c.x, f.y - c.y); if (d < nd){ nd = d; near = c; } }
+      if (near){
+        if (this.r() > (p.bot ? .62 : CFG.fleeChance)) f.fleeCd = 1.5;
+        else { f.fleeDelay = p.bot ? .18 + this.r()*.35 : (.1 + this.r()*.4)*p.calm; f.fleeFrom = { x: near.x, y: near.y }; }
+      }
     }
-    if (f.fleeDelay !== null){ f.fleeDelay -= dt; if (f.fleeDelay <= 0){ f.fleeDelay = null; this.dart(f, Math.atan2(f.y-net.y, f.x-net.x) + (this.r()-.5)*1.2); f.fleeCd = 1.1; f.mode = 'wander'; } }
+    if (f.fleeDelay !== null){ f.fleeDelay -= dt; if (f.fleeDelay <= 0){ f.fleeDelay = null; const fr = f.fleeFrom || f; this.dart(f, Math.atan2(f.y - fr.y, f.x - fr.x) + (this.r()-.5)*1.2); f.fleeCd = 1.1; f.mode = 'wander'; } }
     if (f.knockDelay !== null){ f.knockDelay -= dt; if (f.knockDelay <= 0){ f.knockDelay = null; this.dart(f, this.r()*TAU); } }
     if (this.food.length && f.notice === null && f.mode !== 'food'){
       const pl = this.nearestFood(f);
-      if (pl && pl.d < CFG.foodR) f.notice = this.r() < p.greed ? (p.bot ? .6 + this.r()*1 : .2 + this.r()*.7) : -1;
+      if (pl && pl.d < CFG.foodR) f.notice = this.r() < p.greed ? (p.bot ? .6 + this.r() : .2 + this.r()*.7) : -1;
     }
     if (f.notice > 0){ f.notice -= dt; if (f.notice <= 0){ f.notice = -1; f.mode = 'food'; } }
     if (f.mode === 'food'){
       const pl = this.nearestFood(f);
       if (!pl){ f.mode = 'wander'; f.dec = .3; }
-      else { f.ta = Math.atan2(pl.y-f.y, pl.x-f.x); f.tv = CFG.foodSpeed*(.85 + p.greed*.2); }
+      else { f.ta = Math.atan2(pl.y - f.y, pl.x - f.x); f.tv = CFG.foodSpeed*(.85 + p.greed*.2); }
       return;
     }
     f.dec -= dt;
@@ -381,13 +465,13 @@ class Game {
       if (r < p.pause){ f.tv = this.r()*5; f.dec = .8 + this.r()*1.6; }
       else if (r < p.pause + p.school){
         let n = null, nd = 90;
-        for (const o of this.fish){ if (o !== f && o.alive && !o.caught){ const d = Math.hypot(o.x-f.x, o.y-f.y); if (d < nd){ nd = d; n = o; } } }
+        for (const o of this.fish){ if (o !== f && o.alive){ const d = Math.hypot(o.x - f.x, o.y - f.y); if (d < nd){ nd = d; n = o; } } }
         if (n){ f.ta = n.a + (this.r()-.5)*.6; f.tv = Math.max(12, n.v*(.9 + this.r()*.2)); f.dec = 1 + this.r()*1.5; }
         else { f.ta = f.a + (this.r()*2-1)*1.3*p.jitter; f.tv = p.cruise*(.6 + this.r()*.6); f.dec = .6 + this.r()*1.6; }
       } else { f.ta = f.a + (this.r()*2-1)*1.3*p.jitter; f.tv = p.cruise*(.6 + this.r()*.6); f.dec = .6 + this.r()*1.6; }
     }
   }
-  nearestFood(f){ let best = null, bd = 1e9; for (const pl of this.food){ const d = Math.hypot(pl.x-f.x, pl.y-f.y); if (d < bd){ bd = d; best = pl; } } return best ? { x: best.x, y: best.y, d: bd } : null; }
+  nearestFood(f){ let best = null, bd = 1e9; for (const pl of this.food){ const d = Math.hypot(pl.x - f.x, pl.y - f.y); if (d < bd){ bd = d; best = pl; } } return best ? { x: best.x, y: best.y, d: bd } : null; }
   dart(f, ang){ f.ta = ang; f.a += clamp(angDiff(ang, f.a), -1.2, 1.2); f.dartT = CFG.dartTime; f.tv = Math.max(f.tv, 24 + this.r()*12); }
   kin(f, dt, steering){
     const P = CFG.pond, m = 34;
@@ -409,195 +493,391 @@ class Game {
     if (f.y > P.y + P.h){ f.y = P.y + P.h; if (!steering){ f.a = -f.a; f.ta = f.a; } }
     f.ph += (4 + f.v*.16)*dt;
   }
-  resolveLift(x, y){
-    this.emit('lift', x, y);
+  resolve(id, x, y){
+    const S = this.netS[id];
+    this.emit('lift', x, y, S.i);
     const inside = [];
-    this.fish.forEach((f, i) => { if (f.alive && !f.caught && Math.hypot(f.x-x, f.y-y) < CFG.netR + 4) inside.push(i); });
-    if (!inside.length){ this.dur -= CFG.castCost; this.emit('miss', x, y); if (this.dur <= 0) this.tear(x, y, 'tear'); return; }
-    if (this.dur - CFG.castCost - inside.length*CFG.fishWeight <= 0){
+    this.fish.forEach((f, i) => { if (f.alive && Math.hypot(f.x - x, f.y - y) < CFG.netR + 4) inside.push(i); });
+    if (!inside.length){ S.dur -= CFG.castCost; this.emit('miss', x, y); if (S.dur <= 0) this.tear(id, x, y, 'tear'); return; }
+    if (S.dur - CFG.castCost - inside.length*CFG.fishWeight <= 0){
       inside.forEach(i => this.dart(this.fish[i], this.r()*TAU));
-      this.tear(x, y, 'break', inside.length); return;
+      this.tear(id, x, y, 'break', inside.length); return;
     }
-    this.dur -= CFG.castCost + inside.length*CFG.fishWeight;
-    if (inside.includes(this.player)){
-      const f = this.fish[this.player]; f.caught = true; f.x = x; f.y = y; f.v = 0; this.caughtAt = { x, y };
-      inside.forEach(i => { if (i !== this.player){ this.fish[i].alive = false; this.wrong++; } });
-      this.emit('caught', x, y); this.end('net', 'caught'); return;
-    }
-    inside.forEach(i => { this.fish[i].alive = false; }); this.wrong += inside.length;
-    this.emit('scoop', x, y, inside.length);
+    S.dur -= CFG.castCost + inside.length*CFG.fishWeight;
+    let wrongNow = 0;
+    inside.forEach(i => {
+      const f = this.fish[i]; f.alive = false;
+      if (f.key){
+        const hs = this.huS[f.key]; hs.caught = true; hs.by = id;
+        const cut = { t: 0, fi: i, key: f.key, by: id };
+        if (this.cut) this.cutQ.push(cut); else this.cut = cut;
+        this.emit('caught', f.x, f.y, i, { n: this.names[f.key] || '', b: this.names[id] || '' });
+      } else { wrongNow++; this.wrong++; }
+    });
+    if (wrongNow) this.emit('scoop', x, y, wrongNow);
+    if (!this.aliveHumans().length) this.pendEnd = ['net', 'caught'];
   }
-  tear(x, y, kind, c=0){
-    this.nets--; this.blocked = true; this.net.down = false; this.emit(kind, x, y, c);
-    if (this.nets <= 0){ this.end('fish', 'nets'); return; }
-    this.dur = 100;
+  tear(id, x, y, kind, c = 0){
+    const S = this.netS[id];
+    S.nets--; S.cast = null; this.emit(kind, x, y, c, { who: id });
+    if (S.nets <= 0){ S.out = true; S.dur = 0; if (Object.values(this.netS).every(s => s.out)){ if (this.cut) this.pendEnd = ['fish', 'nets']; else this.end('fish', 'nets'); } return; }
+    S.dur = 100;
   }
-  end(w, why){ this.ph = 'end'; this.winner = w; this.why = why; this.net.down = false; this.emit('end'); }
+  end(w, why){ this.ph = 'end'; this.winner = w; this.why = why; this.emit('end'); }
   snap(){
-    return { g: this.gid, ph: this.ph, cd: Math.max(0, Math.ceil(this.cd)), tl: Math.ceil(this.tl), sd: this.seed, n: this.nets, d: Math.max(0, Math.round(this.dur)),
-      w: this.winner, why: this.why, wr: this.wrong, rv: this.ph === 'end' ? this.player : -1,
+    const ns = {}; for (const id in this.netS){ const S = this.netS[id]; ns[id] = [S.nets, Math.max(0, Math.round(S.dur)), S.food, S.knock, S.i]; }
+    const hs = {}; for (const k of this.humans){ const h = this.huS[k]; hs[k] = [this.hum[k], h.spit, h.caught ? 1 : 0, h.by || '']; }
+    const ca = []; for (const id in this.netS){ const c = this.netS[id].cast; if (c) ca.push([Math.round(c.x), Math.round(c.y), Math.round(c.t*100), c.i]); }
+    return { g: this.gid, ph: this.ph, cd: Math.max(0, Math.ceil(this.cd)), tl: Math.ceil(this.tl), sd: this.seed, sc: this.scene, N: this.N,
+      w: this.winner, why: this.why, wr: this.wrong, bl: this.blindT > 0 ? 1 : 0,
       f: this.fish.map(f => (f.alive ? [Math.round(f.x*2), Math.round(f.y*2), Math.round(((f.a % TAU) + TAU) % TAU / TAU*255), Math.min(35, Math.round(f.v/4))].map(n => n.toString(36)).join('.') : '')).join(';'),
       fo: this.food.map(p => Math.round(p.x) + '.' + Math.round(p.y)).join(';'),
-      nt: this.cast ? [Math.round(this.cast.x), Math.round(this.cast.y), Math.round(this.cast.t*100)] : null,
-      ev: this.ev.slice(-6) };
+      ca, ns, hs, nm: this.names,
+      cut: this.cut ? [Math.round(this.cut.t*100), this.cut.fi, this.cut.key, this.cut.by] : null,
+      ev: this.ev.slice(-8) };
   }
 }
 
-/* ================= 练习用机器人捞鱼人 ================= */
+/* ================= 练习用电脑对手（抓鱼的一方） ================= */
 class BotNet {
-  constructor(g){ Object.assign(this, { g, st: 'think', t: 2.4, x: 180, y: 320, cast: null, food: null, knock: null, seq: { l: 0, f: 0, k: 0 },
-    sus: 0, foodLeft: CFG.foodUses, knockLeft: CFG.knockUses, still: 0, moving: 0, foodWatch: null, knockWatch: null, netNear: 0, netFlag: false, target: -1 }); }
+  constructor(g, id, target){ Object.assign(this, { g, id, tk: target, st: 'think', t: 2.4, x: 180, y: 320, cmd: null, food: null, knock: null, seq: { c: 0, f: 0, k: 0 },
+    sus: 0, still: 0, moving: 0, foodWatch: null, knockWatch: null, netNear: 0, netFlag: false, target: -1 }); }
+  me(){ return this.g.netS[this.id]; }
+  player(){ return this.g.fish[this.g.hum[this.tk]]; }
   observe(dt){
-    const g = this.g, p = g.fish[g.player]; if (!p || !p.alive) return;
+    const g = this.g, p = this.player(); if (!p || !p.alive) return;
     this.sus *= Math.pow(.97, dt);
     if (p.v < 4){ this.still += dt; if (this.still > 3.6){ this.sus += 1; this.still = -2; } } else this.still = Math.max(0, this.still);
     if (p.v > 8){ this.moving += dt; if (this.moving > 9){ this.sus += 1; this.moving = 0; } } else this.moving = 0;
-    if (this.foodWatch){ const w = this.foodWatch; w.t += dt; if (w.t > 1.8){ if (w.d0 < CFG.foodR && Math.hypot(p.x-w.x, p.y-w.y) > w.d0 - 25) this.sus += 2.5; this.foodWatch = null; } }
+    if (this.foodWatch){ const w = this.foodWatch; w.t += dt; if (w.t > 1.8){ if (w.d0 < CFG.foodR && Math.hypot(p.x - w.x, p.y - w.y) > w.d0 - 25) this.sus += 2.5; this.foodWatch = null; } }
     if (this.knockWatch){ this.knockWatch.t += dt; if (p.dartT > 0) this.knockWatch = null; else if (this.knockWatch.t > .9){ this.sus += 2; this.knockWatch = null; } }
-    if (g.net.down && Math.hypot(p.x-g.net.x, p.y-g.net.y) < CFG.fleeR){ this.netNear += dt; if (this.netNear > .75 && p.dartT <= 0 && !this.netFlag){ this.sus += 2; this.netFlag = true; } }
-    else { this.netNear = 0; if (!g.net.down) this.netFlag = false; }
+    const c = this.me().cast;
+    if (c && c.t < CFG.castResolve && Math.hypot(p.x - c.x, p.y - c.y) < CFG.fleeR){ this.netNear += dt; if (this.netNear > .5 && p.dartT <= 0 && !this.netFlag){ this.sus += 2; this.netFlag = true; } }
+    else { this.netNear = 0; if (!c) this.netFlag = false; }
   }
-  move(x, y, dt, sp){ const dx = x-this.x, dy = y-this.y, d = Math.hypot(dx, dy); if (d > 0){ const s = Math.min(d, sp*dt); this.x += dx/d*s; this.y += dy/d*s; } }
+  move(x, y, dt, sp){ const dx = x - this.x, dy = y - this.y, d = Math.hypot(dx, dy); if (d > 0){ const s = Math.min(d, sp*dt); this.x += dx/d*s; this.y += dy/d*s; } }
   step(dt){
-    const g = this.g;
+    const g = this.g, S = this.me();
     if (g.blindT > 0){
       if (this.st === 'approach'){ this.target = -1; this.st = 'think'; this.t = Math.max(this.t, g.blindT + .3); }
       this.foodWatch = null; this.knockWatch = null; this.still = 0;
     } else this.observe(dt);
-    if (g.ph !== 'play') return this.out();
+    if (g.ph !== 'play' || g.cut || !S || S.out) return this.out();
     if (this.st === 'think'){ this.t -= dt; if (this.t <= 0) this.decide(); }
     else if (this.st === 'approach'){
       const f = g.fish[this.target];
       if (!f || !f.alive){ this.st = 'think'; this.t = .5; }
       else { const lead = .7, px = f.x + Math.cos(f.a)*f.v*lead, py = f.y + Math.sin(f.a)*f.v*lead; this.move(px, py, dt, 300);
-        if (Math.hypot(px-this.x, py-this.y) < 12 && !g.cast){ this.cast = { s: ++this.seq.l, x: Math.round(this.x), y: Math.round(this.y) }; this.st = 'wait'; this.t = CFG.castTotal + .2; } }
+        if (Math.hypot(px - this.x, py - this.y) < 12 && !S.cast){ this.cmd = { s: ++this.seq.c, x: Math.round(this.x), y: Math.round(this.y) }; this.st = 'wait'; this.t = CFG.castTotal + .2; } }
     } else if (this.st === 'wait'){ this.t -= dt; if (this.t <= 0){ this.st = 'think'; this.t = .6 + Math.random()*1.4; } }
     return this.out();
   }
   decide(){
-    const g = this.g, r = Math.random(), alive = g.fish.map((f, i) => i).filter(i => g.fish[i].alive);
-    if (this.foodLeft > 0 && r < .28 && g.tl < CFG.duration - 6){
-      const c = g.fish[alive[Math.floor(Math.random()*alive.length)]], p = g.fish[g.player];
-      this.food = { s: ++this.seq.f, x: c.x + (Math.random()-.5)*40, y: c.y + (Math.random()-.5)*40 }; this.foodLeft--;
-      this.foodWatch = { x: this.food.x, y: this.food.y, d0: Math.hypot(p.x-this.food.x, p.y-this.food.y), t: 0 };
+    const g = this.g, S = this.me(), r = Math.random(), alive = g.fish.map((f, i) => i).filter(i => g.fish[i].alive);
+    if (S.food > 0 && r < .28 && g.tl < CFG.duration - 6){
+      const c = g.fish[alive[Math.floor(Math.random()*alive.length)]], p = this.player();
+      this.food = { s: ++this.seq.f, x: c.x + (Math.random()-.5)*40, y: c.y + (Math.random()-.5)*40 };
+      this.foodWatch = { x: this.food.x, y: this.food.y, d0: Math.hypot(p.x - this.food.x, p.y - this.food.y), t: 0 };
       this.st = 'think'; this.t = 2; return;
     }
-    if (this.knockLeft > 0 && r < .38 && g.tl < CFG.duration - 20){ this.knock = { s: ++this.seq.k }; this.knockLeft--; this.knockWatch = { t: 0 }; this.st = 'think'; this.t = 1.5; return; }
+    if (S.knock > 0 && r < .38 && g.tl < CFG.duration - 20){ this.knock = { s: ++this.seq.k }; this.knockWatch = { t: 0 }; this.st = 'think'; this.t = 1.5; return; }
     const pr = Math.min(.8, .12 + this.sus*.11);
-    this.target = Math.random() < pr ? g.player : alive[Math.floor(Math.random()*alive.length)];
+    this.target = Math.random() < pr ? g.hum[this.tk] : alive[Math.floor(Math.random()*alive.length)];
     this.st = 'approach';
   }
-  out(){ return { cast: this.cast, food: this.food, knock: this.knock }; }
+  out(){ return { cast: this.cmd, food: this.food, knock: this.knock }; }
 }
 
 /* ================= 画布 ================= */
 const cv = $('#cv'), ctx = cv.getContext('2d');
 let SCALE = 1;
+const bgCache = { key: '', c: document.createElement('canvas') };
 function fitFrame(){
   const wrap = $('#wrap'), cs = getComputedStyle(wrap);
   const w = wrap.clientWidth, h = wrap.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
   $('#frame').style.width = Math.floor(Math.min(w, h*9/16, 480)) + 'px';
   const r = $('#frame').getBoundingClientRect(), dpr = Math.min(2.5, window.devicePixelRatio || 1);
-  cv.width = Math.round(r.width*dpr); cv.height = Math.round(r.height*dpr); SCALE = cv.width / W;
+  cv.width = Math.round(r.width*dpr); cv.height = Math.round(r.height*dpr); SCALE = cv.width / W; bgCache.key = '';
 }
 addEventListener('resize', fitFrame); fitFrame();
 
-function rrect(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath(); }
+function rrect(c, x, y, w, h, r){ c.beginPath(); c.moveTo(x+r, y); c.arcTo(x+w, y, x+w, y+h, r); c.arcTo(x+w, y+h, x, y+h, r); c.arcTo(x, y+h, x, y, r); c.arcTo(x, y, x+w, y, r); c.closePath(); }
+function lin(c, y0, y1, stops){ const g = c.createLinearGradient(0, y0, 0, y1); stops.forEach(([o, col]) => g.addColorStop(o, col)); return g; }
+const WATER = { x: 17, y: 67, w: 326, h: 506, r: 22 };
 
 const caustic = (() => {
   const c = document.createElement('canvas'); c.width = c.height = 220; const g = c.getContext('2d'), r = mulberry32(7);
   g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 1.6; g.lineCap = 'round';
-  for (let i=0;i<70;i++){ const x = r()*220, y = r()*220, a = r()*TAU, l = 14 + r()*30;
+  for (let i = 0; i < 70; i++){ const x = r()*220, y = r()*220, a = r()*TAU, l = 14 + r()*30;
     g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a+1)*l*.6, y + Math.sin(a+1)*l*.6, x + Math.cos(a)*l, y + Math.sin(a)*l); g.stroke(); }
   return c;
 })();
 let causticPat = null;
-const CRACKS = Array.from({length: 9}, (_, i) => { const r = mulberry32(i + 11), a = i/9*TAU + r()*.5; const pts = [[0,0]]; let d = 0; for (let k=0;k<4;k++){ d += .22 + r()*.12; const aa = a + (r()-.5)*.6; pts.push([Math.cos(aa)*d, Math.sin(aa)*d]); } return pts; });
 
-function drawFish(f, ap){
-  const T = TYPES[ap.type], L = 24*ap.size, Wd = 11*ap.size, sw = Math.sin(f.ph)*.45;
-  ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.a);
-  ctx.fillStyle = T.fin;
-  for (const s of [-1, 1]){
-    ctx.beginPath(); ctx.moveTo(-L*.38, 0);
-    ctx.bezierCurveTo(-L*.6, s*Wd*.2 + sw*Wd*.5, -L*.95, s*Wd*.9 + sw*Wd, -L*1.05, s*Wd*.55 + sw*Wd*1.1);
-    ctx.bezierCurveTo(-L*.85, s*Wd*.25 + sw*Wd*.6, -L*.6, s*Wd*.05, -L*.38, 0); ctx.fill();
-  }
-  ctx.beginPath(); ctx.ellipse(L*.05, Wd*.5, L*.14, Wd*.18, .6 + sw*.3, 0, TAU); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(L*.05, -Wd*.5, L*.14, Wd*.18, -.6 - sw*.3, 0, TAU); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(L*.5, 0);
-  ctx.bezierCurveTo(L*.5, Wd*.55, L*.05, Wd*.62, -L*.42, Wd*.12); ctx.lineTo(-L*.42, -Wd*.12);
-  ctx.bezierCurveTo(L*.05, -Wd*.62, L*.5, -Wd*.55, L*.5, 0); ctx.closePath();
-  ctx.fillStyle = T.body; ctx.fill();
-  if (T.spots){ ctx.save(); ctx.clip(); ap.spots.forEach(s => { ctx.fillStyle = T.spots[s.c % T.spots.length]; ctx.beginPath(); ctx.ellipse(s.u*L, s.v*Wd, s.s*L*.7, s.s*Wd*1.2, 0, 0, TAU); ctx.fill(); }); ctx.restore(); }
-  ctx.strokeStyle = T.ridge; ctx.lineWidth = Wd*.16; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(L*.3, 0); ctx.lineTo(-L*.28, 0); ctx.stroke();
-  for (const s of [-1, 1]){
-    ctx.fillStyle = '#14141a'; ctx.beginPath(); ctx.arc(L*.33, s*Wd*.37, Wd*.14, 0, TAU); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(L*.35, s*Wd*.37 - Wd*.05, Wd*.05, 0, TAU); ctx.fill();
-  }
-  ctx.restore();
+/* ---------- 各场景背景（缓存） ---------- */
+const BG = {
+  pond(c){
+    const r = mulberry32(3);
+    c.fillStyle = '#4c7f36'; c.fillRect(0, 0, W, H);
+    for (let i = 0; i < 260; i++){ c.fillStyle = r() < .5 ? 'rgba(30,70,25,.35)' : 'rgba(140,190,90,.25)'; const x = r()*W, y = r()*H; c.fillRect(x, y, 2, 5 + r()*4); }
+    rrect(c, 8, 58, 344, 524, 30); c.fillStyle = '#6a5640'; c.fill();
+    c.save(); rrect(c, WATER.x, WATER.y, WATER.w, WATER.h, WATER.r); c.clip();
+    c.fillStyle = lin(c, 67, 573, [[0, '#4c9e94'], [.6, '#2e7a78'], [1, '#225f66']]); c.fillRect(WATER.x, WATER.y, WATER.w, WATER.h);
+    for (let i = 0; i < 70; i++){ c.fillStyle = `rgba(20,50,45,${.08 + r()*.1})`; c.beginPath(); c.ellipse(20 + r()*320, 70 + r()*500, 6 + r()*10, 4 + r()*6, r()*3, 0, TAU); c.fill(); }
+    c.restore();
+    // 石头沿着池边
+    const stones = []; const per = 2*(344 + 524);
+    for (let d = 0; d < per; d += 19 + r()*6){
+      let x, y; if (d < 344){ x = 8 + d; y = 60; } else if (d < 344 + 524){ x = 350; y = 58 + d - 344; } else if (d < 688 + 524){ x = 352 - (d - 868); y = 580; } else { x = 10; y = 582 - (d - 1212); }
+      stones.push([x + (r()-.5)*4, y + (r()-.5)*4, 8 + r()*6, r()]);
+    }
+    stones.forEach(([x, y, s, k]) => { c.fillStyle = ['#8f8b80', '#a7a297', '#77736a'][Math.floor(k*3)]; c.beginPath(); c.ellipse(x, y, s, s*.8, k*3, 0, TAU); c.fill();
+      c.fillStyle = 'rgba(255,255,255,.18)'; c.beginPath(); c.ellipse(x - s*.3, y - s*.3, s*.4, s*.25, k*3, 0, TAU); c.fill(); });
+  },
+  sea(c){
+    const r = mulberry32(5);
+    c.fillStyle = lin(c, 0, H, [[0, '#2aa6d8'], [.5, '#1878b8'], [1, '#0d4f8c']]); c.fillRect(0, 0, W, H);
+    for (let i = 0; i < 9; i++){ c.fillStyle = `rgba(240,220,160,${.18 + r()*.14})`; c.beginPath(); c.ellipse(r()*W, r()*H, 40 + r()*60, 20 + r()*40, r()*3, 0, TAU); c.fill(); }
+    for (let i = 0; i < 160; i++){ c.fillStyle = 'rgba(250,240,200,.25)'; c.fillRect(r()*W, r()*H, 2, 2); }
+    const coral = (x, y, col, n) => { for (let i = 0; i < n; i++){ const a = r()*TAU, d = r()*20; c.fillStyle = col; c.beginPath(); c.arc(x + Math.cos(a)*d, y + Math.sin(a)*d, 5 + r()*7, 0, TAU); c.fill(); }
+      c.fillStyle = 'rgba(255,255,255,.25)'; for (let i = 0; i < n/2; i++){ c.beginPath(); c.arc(x + (r()-.5)*30, y + (r()-.5)*30, 2, 0, TAU); c.fill(); } };
+    coral(18, 90, '#ff6f91', 12); coral(345, 110, '#ffb347', 10); coral(20, 560, '#a879e8', 12); coral(340, 570, '#ff6f91', 12); coral(350, 330, '#3fd0b0', 8); coral(8, 330, '#ffb347', 8);
+    for (let i = 0; i < 14; i++){ const x = r() < .5 ? r()*20 : W - r()*20, y = 70 + r()*500; c.strokeStyle = 'rgba(60,170,110,.7)'; c.lineWidth = 3; c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + 10, y - 12, x + 4, y - 26); c.stroke(); }
+    c.save(); c.fillStyle = 'rgba(4,30,60,.32)'; c.beginPath(); c.rect(0, 0, W, H); rrect(c, WATER.x, WATER.y, WATER.w, WATER.h, WATER.r); c.fill('evenodd'); c.restore();
+    c.setLineDash([6, 8]); c.strokeStyle = 'rgba(255,255,255,.25)'; c.lineWidth = 1.5; rrect(c, WATER.x, WATER.y, WATER.w, WATER.h, WATER.r); c.stroke(); c.setLineDash([]);
+  },
+  sushi(c){
+    const r = mulberry32(9);
+    c.fillStyle = '#e6c493'; c.fillRect(0, 0, W, H);
+    for (let y = 0; y < H; y += 3){ c.fillStyle = `rgba(170,120,60,${.05 + r()*.08})`; c.fillRect(0, y, W, 1); }
+    for (let i = 0; i < 12; i++){ c.strokeStyle = 'rgba(160,110,55,.3)'; c.lineWidth = 1; c.beginPath(); const y = r()*H; c.moveTo(0, y); c.bezierCurveTo(W*.3, y + 8, W*.6, y - 8, W, y + 4); c.stroke(); }
+    rrect(c, 8, 58, 344, 524, 18); c.fillStyle = '#2c3037'; c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.18)'; c.lineWidth = 2; rrect(c, 10, 60, 340, 520, 16); c.stroke();
+    c.save(); rrect(c, WATER.x, WATER.y, WATER.w, WATER.h, 12); c.clip();
+    c.fillStyle = lin(c, 67, 573, [[0, '#2a6c8a'], [1, '#143b55']]); c.fillRect(WATER.x, WATER.y, WATER.w, WATER.h);
+    for (let i = 0; i < 220; i++){ c.fillStyle = `rgba(10,20,30,${.15 + r()*.2})`; c.beginPath(); c.arc(20 + r()*322, 70 + r()*500, 2 + r()*3, 0, TAU); c.fill(); }
+    c.restore();
+    c.fillStyle = '#b8862f'; c.fillRect(0, 0, W, 6); c.fillRect(0, H - 6, W, 6);
+  },
+  grill(c){
+    const r = mulberry32(11);
+    c.fillStyle = '#6e2a1e'; c.fillRect(0, 0, W, H);
+    for (let y = 0; y < H; y += 16){ c.fillStyle = 'rgba(0,0,0,.18)'; c.fillRect(0, y, W, 2); for (let x = (y/16) % 2 ? 0 : 20; x < W; x += 40) c.fillRect(x, y, 2, 16); }
+    rrect(c, 8, 58, 344, 524, 14); c.fillStyle = '#eef2f0'; c.fill();
+    c.save(); rrect(c, 8, 58, 344, 524, 14); c.clip(); c.strokeStyle = '#c3cfcb'; c.lineWidth = 1;
+    for (let x = 8; x < 352; x += 14){ c.beginPath(); c.moveTo(x, 58); c.lineTo(x, 582); c.stroke(); }
+    for (let y = 58; y < 582; y += 14){ c.beginPath(); c.moveTo(8, y); c.lineTo(352, y); c.stroke(); }
+    c.restore();
+    c.strokeStyle = '#2f6fb0'; c.lineWidth = 3; rrect(c, 12, 62, 336, 516, 12); c.stroke();
+    c.save(); rrect(c, WATER.x, WATER.y, WATER.w, WATER.h, 8); c.clip();
+    c.fillStyle = lin(c, 67, 573, [[0, '#5f9c86'], [1, '#2f6656']]); c.fillRect(WATER.x, WATER.y, WATER.w, WATER.h);
+    c.strokeStyle = 'rgba(20,50,40,.25)'; for (let x = 17; x < 343; x += 20){ c.beginPath(); c.moveTo(x, 67); c.lineTo(x, 573); c.stroke(); }
+    for (let y = 67; y < 573; y += 20){ c.beginPath(); c.moveTo(17, y); c.lineTo(343, y); c.stroke(); }
+    c.fillStyle = '#3a3f44'; c.beginPath(); c.arc(320, 548, 7, 0, TAU); c.fill();
+    c.restore();
+  },
+  tank(c){
+    const r = mulberry32(13);
+    c.fillStyle = '#f3dcc8'; c.fillRect(0, 0, W, H);
+    for (let x = 0; x < W; x += 24){ c.fillStyle = 'rgba(220,170,140,.28)'; c.fillRect(x, 0, 10, H); }
+    rrect(c, 8, 58, 344, 524, 12); c.fillStyle = '#1e1f24'; c.fill();
+    c.save(); rrect(c, WATER.x, WATER.y, WATER.w, WATER.h, 6); c.clip();
+    c.fillStyle = lin(c, 67, 573, [[0, '#9ee0f3'], [1, '#55b6de']]); c.fillRect(WATER.x, WATER.y, WATER.w, WATER.h);
+    const cols = ['rgba(245,230,200,.55)', 'rgba(232,180,160,.5)', 'rgba(167,199,231,.5)', 'rgba(201,228,180,.5)', 'rgba(120,110,100,.35)'];
+    for (let i = 0; i < 900; i++){ c.fillStyle = cols[Math.floor(r()*cols.length)]; c.beginPath(); c.arc(20 + r()*322, 70 + r()*500, 1.5 + r()*2, 0, TAU); c.fill(); }
+    // 小城堡
+    c.fillStyle = '#9aa0a8'; c.fillRect(250, 470, 60, 60); c.fillStyle = '#7e858e';
+    for (let i = 0; i < 5; i++){ c.fillRect(250 + i*13, 466, 8, 8); c.fillRect(250 + i*13, 526, 8, 8); }
+    c.fillStyle = '#5b6068'; c.fillRect(272, 492, 16, 16);
+    c.fillStyle = '#d24d4d'; c.beginPath(); c.moveTo(280, 470); c.lineTo(296, 462); c.lineTo(280, 456); c.closePath(); c.fill();
+    c.restore();
+    c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 2; rrect(c, WATER.x + 1, WATER.y + 1, WATER.w - 2, WATER.h - 2, 6); c.stroke();
+  },
+};
+const FG = {
+  pond(c, t){
+    const pads = [[52, 110, 20, .4], [300, 150, 24, 2.1], [70, 520, 22, 4], [308, 500, 18, 1.2], [180, 92, 15, 5.2]];
+    pads.forEach(([x, y, s, a], i) => { const dy = Math.sin(t*.6 + i)*1.2;
+      c.fillStyle = 'rgba(10,40,20,.25)'; c.beginPath(); c.arc(x + 3, y + dy + 5, s, a + .25, a + TAU - .25); c.lineTo(x + 3, y + dy + 5); c.fill();
+      c.fillStyle = '#4f9a3c'; c.beginPath(); c.arc(x, y + dy, s, a + .25, a + TAU - .25); c.lineTo(x, y + dy); c.fill();
+      c.strokeStyle = 'rgba(200,240,150,.35)'; c.lineWidth = 1; for (let k = 0; k < 5; k++){ const aa = a + .6 + k*1.1; c.beginPath(); c.moveTo(x, y + dy); c.lineTo(x + Math.cos(aa)*s*.85, y + dy + Math.sin(aa)*s*.85); c.stroke(); } });
+    const fx = 300, fy = 150 + Math.sin(t*.6 + 1)*1.2;
+    for (let k = 0; k < 6; k++){ const a = k/6*TAU + .3; c.fillStyle = k % 2 ? '#ffd0e0' : '#ff9cc0'; c.beginPath(); c.ellipse(fx + Math.cos(a)*6, fy + Math.sin(a)*6, 7, 3.5, a, 0, TAU); c.fill(); }
+    c.fillStyle = '#ffd34a'; c.beginPath(); c.arc(fx, fy, 3, 0, TAU); c.fill();
+  },
+  tank(c, t){
+    const clump = (x, y, n, col, s) => { for (let k = 0; k < n; k++){ const a = k/n*TAU + Math.sin(t*.8 + k)*.08; c.fillStyle = col; c.beginPath(); c.ellipse(x + Math.cos(a)*s*.6, y + Math.sin(a)*s*.6, s*.7, s*.18, a, 0, TAU); c.fill(); } };
+    clump(42, 100, 7, 'rgba(60,160,80,.9)', 26); clump(320, 300, 6, 'rgba(80,180,90,.85)', 22); clump(40, 470, 8, 'rgba(50,140,70,.9)', 28);
+  },
+};
+const CAUSTIC_A = { pond: .06, sea: .14, sushi: .06, grill: .04, tank: .1 };
+
+function getBg(scene){
+  const key = scene + cv.width + 'x' + cv.height;
+  if (bgCache.key !== key){ const b = bgCache.c; b.width = cv.width; b.height = cv.height; const c = b.getContext('2d'); c.setTransform(SCALE, 0, 0, SCALE, 0, 0); (BG[scene] || BG.pond)(c); bgCache.key = key; }
+  return bgCache.c;
 }
 
-function drawNet(x, y, t, dur){
-  // t：下网后经过的秒数。0–0.25 落下，0.25–castResolve 下沉，之后提起
-  const R = CFG.netR, tr = CFG.castResolve, tt = CFG.castTotal;
-  let sc, oy = 0, a = 1, sub = 0;
-  const td = CFG.castDrop;
-  if (t < td){ const k = t/td; sc = 1.3 - .15*k; oy = -36*(1-k)*(1-k); a = k; }
-  else if (t < tr){ const k = (t - td)/(tr - td); sc = 1.15 - .3*k; sub = .62*k; }
-  else { const k = clamp((t - tr)/(tt - tr), 0, 1); sc = .85 + .45*k; oy = -26*k; a = 1 - Math.max(0, (k - .6)/.4); sub = .62*(1-k); }
-  ctx.save(); ctx.translate(x, y + oy); ctx.globalAlpha = a;
-  if (t >= td && t < tr){ const k = (t - td)/(tr - td);
-    ctx.strokeStyle = 'rgba(246,196,69,.95)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.arc(0, 0, R*1.15 + 7, -Math.PI/2, -Math.PI/2 + TAU*(1-k)); ctx.stroke(); }
-  ctx.scale(sc, sc);
-  ctx.strokeStyle = '#e23b2e'; ctx.lineWidth = 8; ctx.lineCap = 'round';
-  const hl = 40*(1 - sub*.8); ctx.beginPath(); ctx.moveTo(R*.72, R*.72); ctx.lineTo(R*.72 + hl, R*.72 + hl); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.fill();
-  const dmg = clamp(1 - dur/100, 0, 1), n = Math.floor(dmg*9);
-  ctx.strokeStyle = 'rgba(70,110,140,.55)'; ctx.lineWidth = 1.2;
-  for (let i=0;i<n;i++){ ctx.beginPath(); CRACKS[i].forEach(([px, py], k) => { const xx = px*R*(.6 + dmg*.5), yy = py*R*(.6 + dmg*.5); k ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }); ctx.stroke(); }
-  if (dmg > .55){ ctx.fillStyle = 'rgba(20,100,150,.35)'; [[.3,.2,.18],[-.35,.1,.14],[.05,-.4,.16]].slice(0, Math.ceil((dmg-.55)*7)).forEach(([u, v, s]) => { ctx.beginPath(); ctx.arc(u*R, v*R, s*R, 0, TAU); ctx.fill(); }); }
-  ctx.lineWidth = 5; ctx.strokeStyle = '#e23b2e'; ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.stroke();
-  ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,205,195,.75)'; ctx.beginPath(); ctx.arc(0, 0, R-2.5, -2.4, -.6); ctx.stroke();
-  if (sub > 0){ ctx.fillStyle = `rgba(40,150,205,${sub})`; ctx.beginPath(); ctx.arc(0, 0, R + 4, 0, TAU); ctx.fill(); }
-  if (t >= tr){ ctx.fillStyle = 'rgba(220,245,255,.9)'; for (let i=0;i<5;i++){ const dy = ((t - tr)*90 + i*9) % 34; ctx.fillRect(-R*.6 + i*R*.3, R*.6 + dy, 2, 4); } }
-  ctx.restore();
+/* ---------- 鱼 ---------- */
+function drawFish(c, f, ap){
+  const S = ap.sp, L = S.L*ap.size, Wd = S.W*ap.size, sw = Math.sin(f.ph)*.45, tc = S.tc || S.body;
+  c.save(); c.translate(f.x, f.y); c.rotate(f.a);
+  // 尾巴
+  if (S.tail === 'fan' || S.tail === 'veil'){
+    const k = S.tail === 'veil' ? 1.55 : 1;
+    for (const s of [-1, 1]){
+      c.fillStyle = S.tail === 'veil' ? (s < 0 ? tc : (S.tc2 || tc)) : S.fin;
+      c.globalAlpha = S.tail === 'veil' ? .85 : 1;
+      c.beginPath(); c.moveTo(-L*.38, 0);
+      c.bezierCurveTo(-L*.6*k, s*Wd*.2 + sw*Wd*.5, -L*.95*k, s*Wd*.9*k + sw*Wd, -L*1.05*k, s*Wd*.55*k + sw*Wd*1.1);
+      c.bezierCurveTo(-L*.85*k, s*Wd*.25 + sw*Wd*.6, -L*.6*k, s*Wd*.05, -L*.38, 0); c.fill();
+    }
+    c.globalAlpha = 1;
+  } else if (S.tail === 'fork'){
+    c.fillStyle = tc; c.beginPath(); c.moveTo(-L*.4, 0);
+    c.lineTo(-L*.78, -Wd*.62 + sw*Wd*.6); c.lineTo(-L*.62, sw*Wd*.4); c.lineTo(-L*.78, Wd*.62 + sw*Wd*.6); c.closePath(); c.fill();
+  } else {
+    c.fillStyle = tc; c.beginPath(); c.ellipse(-L*.56, sw*Wd*.35, L*.2, Wd*.38, sw*.3, 0, TAU); c.fill();
+  }
+  // 胸鳍
+  c.fillStyle = S.fin;
+  c.beginPath(); c.ellipse(L*.05, Wd*.5, L*.14, Wd*.18, .6 + sw*.3, 0, TAU); c.fill();
+  c.beginPath(); c.ellipse(L*.05, -Wd*.5, L*.14, Wd*.18, -.6 - sw*.3, 0, TAU); c.fill();
+  // 身体
+  c.beginPath(); c.moveTo(L*.5, 0);
+  c.bezierCurveTo(L*.5, Wd*.55, L*.05, Wd*.62, -L*.42, Wd*.12); c.lineTo(-L*.42, -Wd*.12);
+  c.bezierCurveTo(L*.05, -Wd*.62, L*.5, -Wd*.55, L*.5, 0); c.closePath();
+  c.fillStyle = S.body; c.fill();
+  if (S.pat){
+    c.save(); c.clip();
+    const pc = S.pc;
+    if (S.pat === 'spots') ap.spots.forEach(s => { c.fillStyle = pc[s.c % pc.length]; c.beginPath(); c.ellipse(s.u*L, s.v*Wd, s.s*L*.7, s.s*Wd*1.2, 0, 0, TAU); c.fill(); });
+    else if (S.pat === 'bands'){ [.22, -.08].forEach(u => { if (pc[1]){ c.fillStyle = pc[1]; c.fillRect(u*L - L*.075, -Wd, L*.15, Wd*2); } c.fillStyle = pc[0]; c.fillRect(u*L - L*.05, -Wd, L*.1, Wd*2); }); }
+    else if (S.pat === 'line'){ c.fillStyle = pc[0]; c.fillRect(-L*.45, -Wd*.1, L*.85, Wd*.2); }
+    else if (S.pat === 'wavy'){ c.strokeStyle = pc[0]; c.lineWidth = 1.3; for (let k = 0; k < 6; k++){ const u = -.35 + k*.13; c.beginPath(); c.moveTo(u*L, -Wd*.5); c.quadraticCurveTo(u*L + 3, 0, u*L, Wd*.5); c.stroke(); } }
+    else if (S.pat === 'neon'){ c.fillStyle = pc[1]; c.fillRect(-L*.45, -Wd, L*.38, Wd*2); c.fillStyle = pc[0]; c.fillRect(-L*.3, -Wd*.14, L*.75, Wd*.28); }
+    else if (S.pat === 'mottle') ap.spots.forEach(s => { c.fillStyle = pc[s.c % pc.length]; c.beginPath(); c.ellipse(s.u*L, s.v*Wd, s.s*L, s.s*Wd*1.6, s.u*3, 0, TAU); c.fill(); });
+    c.restore();
+  }
+  c.strokeStyle = S.ridge; c.lineWidth = Wd*.16; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(L*.3, 0); c.lineTo(-L*.28, 0); c.stroke();
+  for (const s of [-1, 1]){
+    c.fillStyle = '#14141a'; c.beginPath(); c.arc(L*.33, s*Wd*.37, Math.max(1.4, Wd*.14), 0, TAU); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.85)'; c.beginPath(); c.arc(L*.35, s*Wd*.37 - Wd*.05, Math.max(.6, Wd*.05), 0, TAU); c.fill();
+  }
+  c.restore();
 }
 
-/* 视觉特效 */
-const FX = { ripples: [], bits: [], texts: [], shake: 0, splat: null };
+/* ---------- 抓鱼工具 ---------- */
+const OWNER = ['#f6c445', '#5ad1ff', '#ff7ab0', '#9cff6a', '#c79bff', '#ffffff'];
+const CRACKS = Array.from({ length: 9 }, (_, i) => { const r = mulberry32(i + 11), a = i/9*TAU + r()*.5; const pts = [[0, 0]]; let d = 0; for (let k = 0; k < 4; k++){ d += .22 + r()*.12; const aa = a + (r()-.5)*.6; pts.push([Math.cos(aa)*d, Math.sin(aa)*d]); } return pts; });
+function phase(t){
+  const td = CFG.castDrop, tr = CFG.castResolve, tt = CFG.castTotal;
+  if (t < td) return { st: 'drop', k: t/td };
+  if (t < tr) return { st: 'sink', k: (t - td)/(tr - td) };
+  return { st: 'lift', k: clamp((t - tr)/(tt - tr), 0, 1) };
+}
+const toolUnder = (scene, t) => (SCENES[scene].tool === 'poi' || SCENES[scene].tool === 'net') && t >= CFG.castDrop && t < CFG.castResolve;
+function drawTimer(c, x, y, k, col){ c.strokeStyle = col; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.arc(x, y, CFG.netR*1.15 + 7, -Math.PI/2, -Math.PI/2 + TAU*(1-k)); c.stroke(); }
+function drawZone(c, x, y, col){ c.save(); c.setLineDash([5, 5]); c.strokeStyle = col; c.globalAlpha = .8; c.lineWidth = 2; c.beginPath(); c.arc(x, y, CFG.netR, 0, TAU); c.stroke(); c.restore(); }
+function drawTool(c, scene, x, y, t, dur, owner){
+  const tool = SCENES[scene].tool, R = CFG.netR, P = phase(t), col = OWNER[owner % OWNER.length];
+  if (P.st === 'sink') drawTimer(c, x, y, P.k, col);
+  if (tool === 'poi' || tool === 'net'){
+    let sc, oy = 0, a = 1, sub = 0;
+    if (P.st === 'drop'){ sc = 1.3 - .15*P.k; oy = -36*(1-P.k)*(1-P.k); a = P.k; }
+    else if (P.st === 'sink'){ sc = 1.15 - .3*P.k; sub = .62*P.k; }
+    else { sc = .85 + .45*P.k; oy = -26*P.k; a = 1 - Math.max(0, (P.k - .6)/.4); sub = .62*(1 - P.k); }
+    c.save(); c.translate(x, y + oy); c.globalAlpha = a; c.scale(sc, sc);
+    const rim = tool === 'poi' ? '#e23b2e' : '#b9c1c7';
+    c.strokeStyle = tool === 'poi' ? '#e23b2e' : '#8a5a2b'; c.lineWidth = tool === 'poi' ? 8 : 6; c.lineCap = 'round';
+    const hl = (tool === 'poi' ? 40 : 70)*(1 - sub*.8); c.beginPath(); c.moveTo(R*.72, R*.72); c.lineTo(R*.72 + hl, R*.72 + hl); c.stroke();
+    c.fillStyle = tool === 'poi' ? 'rgba(255,255,255,.55)' : 'rgba(80,170,100,.22)'; c.beginPath(); c.arc(0, 0, R, 0, TAU); c.fill();
+    if (tool === 'net'){ c.save(); c.beginPath(); c.arc(0, 0, R, 0, TAU); c.clip(); c.strokeStyle = 'rgba(40,120,60,.75)'; c.lineWidth = 1;
+      for (let k = -R; k <= R; k += 6){ c.beginPath(); c.moveTo(k, -R); c.lineTo(k + R*.3, R); c.stroke(); c.beginPath(); c.moveTo(-R, k); c.lineTo(R, k - R*.3); c.stroke(); } c.restore(); }
+    const dmg = clamp(1 - dur/100, 0, 1), n = Math.floor(dmg*9);
+    c.strokeStyle = tool === 'poi' ? 'rgba(70,110,140,.55)' : 'rgba(30,30,30,.6)'; c.lineWidth = 1.2;
+    for (let i = 0; i < n; i++){ c.beginPath(); CRACKS[i].forEach(([px, py], k) => { const xx = px*R*(.6 + dmg*.5), yy = py*R*(.6 + dmg*.5); k ? c.lineTo(xx, yy) : c.moveTo(xx, yy); }); c.stroke(); }
+    c.lineWidth = 5; c.strokeStyle = rim; c.beginPath(); c.arc(0, 0, R, 0, TAU); c.stroke();
+    if (sub > 0){ c.fillStyle = `rgba(40,150,205,${sub})`; c.beginPath(); c.arc(0, 0, R + 4, 0, TAU); c.fill(); }
+    c.restore();
+    return;
+  }
+  if (P.st !== 'lift') drawZone(c, x, y, col);
+  if (tool === 'hook'){
+    let hy = y, a = 1;
+    if (P.st === 'drop'){ hy = y - 90*(1-P.k)*(1-P.k); }
+    else if (P.st === 'lift'){ hy = y - 140*P.k*P.k; a = 1 - P.k*.6; }
+    const bob = P.st === 'sink' ? Math.sin(t*14)*1.5 : 0;
+    c.save(); c.globalAlpha = a;
+    c.strokeStyle = 'rgba(255,255,255,.75)'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(x + 30, 0); c.quadraticCurveTo(x + 10, (hy)/2, x, hy - 12 + bob); c.stroke();
+    c.translate(x, hy + bob);
+    c.fillStyle = '#ff3b3b'; c.beginPath(); c.arc(0, -16, 5, 0, TAU); c.fill(); c.fillStyle = '#fff'; c.beginPath(); c.arc(0, -16, 5, 0, Math.PI); c.fill();
+    c.strokeStyle = '#d8dde3'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.moveTo(0, -11); c.lineTo(0, 4); c.arc(-5, 4, 5, 0, Math.PI*.9); c.stroke();
+    c.fillStyle = '#ff9cbc'; for (let k = 0; k < 4; k++){ c.beginPath(); c.arc(-2 + Math.sin(k + t*6)*2, -4 + k*3, 2.4, 0, TAU); c.fill(); }
+    c.restore();
+  } else if (tool === 'hand'){
+    let py = y, open = 1;
+    if (P.st === 'drop') py = y + 110*(1-P.k)*(1-P.k);
+    else if (P.st === 'sink') open = 1;
+    else { py = y + 170*P.k*P.k; open = 0; }
+    if (P.st === 'sink' && P.k > .85) open = 1 - (P.k - .85)/.15;
+    c.save(); c.translate(x, py);
+    c.fillStyle = '#ffffff'; c.beginPath(); c.moveTo(-12, 22); c.lineTo(12, 22); c.lineTo(18, 700); c.lineTo(-14, 700); c.closePath(); c.fill();
+    c.fillStyle = '#e6e8ec'; c.fillRect(-13, 20, 26, 7);
+    c.fillStyle = '#f2c7a0'; c.beginPath(); c.ellipse(0, 6, 14, 15, 0, 0, TAU); c.fill();
+    const fl = 8 + 12*open;
+    [-.55, -.18, .18, .55].forEach((a, k) => { c.save(); c.rotate(a*(.6 + .6*open)); c.fillStyle = '#f2c7a0'; rrect(c, -3.2, -6 - fl, 6.4, fl + 4, 3.2); c.fill(); c.fillStyle = 'rgba(255,240,230,.7)'; c.fillRect(-1.6, -5 - fl, 3.2, 2.4); c.restore(); });
+    c.save(); c.rotate(1.1 + .3*open); c.fillStyle = '#e9b88f'; rrect(c, -3.4, -4 - (6 + 8*open), 6.8, 6 + 8*open + 2, 3.4); c.fill(); c.restore();
+    c.restore();
+  } else if (tool === 'paw'){
+    let py = y, claws = 0;
+    if (P.st === 'drop') py = y - 120*(1-P.k)*(1-P.k);
+    else if (P.st === 'sink'){ claws = P.k > .75 ? (P.k - .75)/.25 : 0; }
+    else { py = y - 180*P.k*P.k; claws = 1; }
+    c.save(); c.translate(x, py);
+    c.fillStyle = '#f39a3c'; c.beginPath(); c.moveTo(-13, -8); c.lineTo(13, -8); c.lineTo(10, -700); c.lineTo(-16, -700); c.closePath(); c.fill();
+    c.fillStyle = '#c96d1d'; for (let k = 1; k < 9; k++){ c.fillRect(-13, -14 - k*22, 26, 6); }
+    c.fillStyle = '#f7a64c'; c.beginPath(); c.ellipse(0, 0, 16, 15, 0, 0, TAU); c.fill();
+    if (claws > 0){ c.fillStyle = '#ffffff'; [-9, -3, 3, 9].forEach(dx => { c.beginPath(); c.moveTo(dx - 2, 12); c.lineTo(dx + 2, 12); c.lineTo(dx, 12 + 8*claws); c.closePath(); c.fill(); }); }
+    c.fillStyle = '#ff9fb4'; c.beginPath(); c.ellipse(0, 3, 6.5, 5, 0, 0, TAU); c.fill();
+    [-9, -3, 3, 9].forEach((dx, k) => { c.beginPath(); c.ellipse(dx, -6 + (k === 0 || k === 3 ? 3 : 0), 2.8, 3.3, 0, 0, TAU); c.fill(); });
+    c.restore();
+  }
+}
+
+/* ================= 特效 ================= */
+const FX = { ripples: [], bits: [], texts: [], shake: 0, splat: null, cut: null, bub: [] };
+function ripple(x, y, max = 40, a = .6){ FX.ripples.push({ x, y, r: 4, max, a, life: 1 }); }
+function bits(x, y, n, col){ for (let i = 0; i < n; i++){ const a = Math.random()*TAU, s = 30 + Math.random()*90; FX.bits.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s, life: .6 + Math.random()*.6, col, sz: 2 + Math.random()*3 }); } }
+function ftext(x, y, t, col = '#fff3dc'){ FX.texts.push({ x, y, t, col, life: 1.4 }); }
 function blind(seed){
   const r = mulberry32((seed || 1) + 99), P = CFG.pond, cols = 6, rows = 10, cw = P.w/cols, ch = P.h/rows;
-  const cells = []; for (let j=0;j<rows;j++) for (let i=0;i<cols;i++) cells.push([i, j]);
-  for (let k=cells.length-1;k>0;k--){ const m = Math.floor(r()*(k+1)); [cells[k], cells[m]] = [cells[m], cells[k]]; }
+  const cells = []; for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) cells.push([i, j]);
+  for (let k = cells.length - 1; k > 0; k--){ const m = Math.floor(r()*(k+1)); [cells[k], cells[m]] = [cells[m], cells[k]]; }
   const keep = cells.slice(0, Math.round(cells.length*CFG.spitCover)), blobs = [];
   keep.forEach(([i, j]) => { const cx = P.x + (i+.5)*cw, cy = P.y + (j+.5)*ch;
     blobs.push({ x: cx + (r()-.5)*cw*.4, y: cy + (r()-.5)*ch*.4, r: Math.max(cw, ch)*(.56 + r()*.22), d: r()*.12 });
     if (r() < .5) blobs.push({ x: cx + (r()-.5)*cw, y: cy + (r()-.5)*ch, r: cw*(.25 + r()*.2), d: .05 + r()*.1 }); });
-  const drops = Array.from({length: 26}, () => ({ x: P.x + r()*P.w, y: P.y + r()*P.h, r: 3 + r()*7, d: r()*.15 }));
+  const drops = Array.from({ length: 26 }, () => ({ x: P.x + r()*P.w, y: P.y + r()*P.h, r: 3 + r()*7, d: r()*.15 }));
   FX.splat = { t: 0, life: CFG.spitBlind, blobs, drops };
   vib([30, 20, 30]);
 }
-function drawSplat(){
+function drawSplat(c){
   const sp = FX.splat; if (!sp) return;
   const fadeOut = clamp((sp.life - sp.t)/.35, 0, 1);
-  ctx.save();
-  const layer = (col, grow, extra) => { ctx.fillStyle = col; ctx.beginPath();
-    sp.blobs.forEach(b => { const k = clamp((sp.t - b.d)/.14, 0, 1); if (k <= 0) return; const rr = b.r*(.4 + .6*k)*grow + extra; ctx.moveTo(b.x + rr, b.y); ctx.arc(b.x, b.y, rr, 0, TAU); });
-    ctx.fill(); };
-  ctx.globalAlpha = fadeOut;
+  c.save();
+  const layer = (col, grow, extra) => { c.fillStyle = col; c.beginPath();
+    sp.blobs.forEach(b => { const k = clamp((sp.t - b.d)/.14, 0, 1); if (k <= 0) return; const rr = b.r*(.4 + .6*k)*grow + extra; c.moveTo(b.x + rr, b.y); c.arc(b.x, b.y, rr, 0, TAU); });
+    c.fill(); };
+  c.globalAlpha = fadeOut;
   layer('rgba(120,200,225,.95)', 1.04, 3);
   layer('rgba(226,248,252,.97)', 1, 0);
-  ctx.fillStyle = 'rgba(255,255,255,.9)';
-  sp.blobs.forEach(b => { const k = clamp((sp.t - b.d)/.14, 0, 1); if (k <= 0) return; ctx.beginPath(); ctx.ellipse(b.x - b.r*.3, b.y - b.r*.32, b.r*.22, b.r*.1, -.5, 0, TAU); ctx.fill(); });
-  sp.drops.forEach(d => { if (sp.t < d.d) return; ctx.fillStyle = 'rgba(226,248,252,.95)'; ctx.beginPath(); ctx.arc(d.x, d.y + (sp.t - d.d)*14, d.r, 0, TAU); ctx.fill(); });
-  ctx.restore();
+  c.fillStyle = 'rgba(255,255,255,.9)';
+  sp.blobs.forEach(b => { const k = clamp((sp.t - b.d)/.14, 0, 1); if (k <= 0) return; c.beginPath(); c.ellipse(b.x - b.r*.3, b.y - b.r*.32, b.r*.22, b.r*.1, -.5, 0, TAU); c.fill(); });
+  sp.drops.forEach(d => { if (sp.t < d.d) return; c.fillStyle = 'rgba(226,248,252,.95)'; c.beginPath(); c.arc(d.x, d.y + (sp.t - d.d)*14, d.r, 0, TAU); c.fill(); });
+  c.restore();
 }
-function ripple(x, y, max=40, a=.6){ FX.ripples.push({ x, y, r: 4, max, a, life: 1 }); }
-function bits(x, y, n, col){ for (let i=0;i<n;i++){ const a = Math.random()*TAU, s = 30 + Math.random()*90; FX.bits.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s, life: .6 + Math.random()*.6, col, sz: 2 + Math.random()*3 }); } }
-function ftext(x, y, t, col='#fff3dc'){ FX.texts.push({ x, y, t, col, life: 1.4 }); }
 function stepFx(dt){
   FX.ripples.forEach(r => { r.r += (r.max - r.r)*dt*2.4 + 8*dt; r.life -= dt*1.1; });
   FX.ripples = FX.ripples.filter(r => r.life > 0);
@@ -607,79 +887,221 @@ function stepFx(dt){
   FX.texts = FX.texts.filter(t => t.life > 0);
   FX.shake = Math.max(0, FX.shake - dt);
   if (FX.splat){ FX.splat.t += dt; if (FX.splat.t >= FX.splat.life) FX.splat = null; }
+  if (Math.random() < dt*3) FX.bub.push({ x: 30 + Math.random()*300, y: 570, s: 20 + Math.random()*20, r: 1.5 + Math.random()*2 });
+  FX.bub.forEach(b => { b.y -= b.s*dt; }); FX.bub = FX.bub.filter(b => b.y > 70);
 }
 
-/* ================= 渲染 ================= */
+/* ================= 被抓过场（像素风，3 秒） ================= */
+const LR = document.createElement('canvas'); LR.width = 120; LR.height = 214; const lc = LR.getContext('2d');
+function Pr(x, y, w, h, col){ lc.fillStyle = col; lc.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
+function Dk(cx, cy, rx, ry, col){ lc.fillStyle = col; ry = ry ?? rx; const R = Math.floor(ry); for (let dy = -R; dy <= R; dy++){ const w = Math.floor(rx*Math.sqrt(Math.max(0, 1 - (dy*dy)/(ry*ry)))); lc.fillRect(Math.round(cx) - w, Math.round(cy) + dy, w*2 + 1, 1); } }
+function Tri(ax, ay, bx, by, cx2, cy2, col){ lc.fillStyle = col; lc.beginPath(); lc.moveTo(ax, ay); lc.lineTo(bx, by); lc.lineTo(cx2, cy2); lc.closePath(); lc.fill(); }
+function burst(c1, c2, rot){ Pr(0, 0, 120, 214, c1); const n = 14; for (let i = 0; i < n; i += 2){ const a0 = rot + i/n*TAU, a1 = rot + (i + 1)/n*TAU; Tri(60, 100, 60 + Math.cos(a0)*240, 100 + Math.sin(a0)*240, 60 + Math.cos(a1)*240, 100 + Math.sin(a1)*240, c2); } }
+function sparkle(t, seed, n, col){ const r = mulberry32(seed); for (let i = 0; i < n; i++){ const x = 8 + r()*104, y = 40 + r()*140, ph = r()*6; if (Math.sin(t*9 + ph) > .3){ Pr(x - 2, y, 5, 1, col); Pr(x, y - 2, 1, 5, col); } } }
+function pixFish(x, y, len, ap, dir = 1, o = {}){
+  const S = ap.sp, body = S.body, back = S.tc || S.body, h = len/4.2;
+  lc.save(); lc.translate(Math.round(x), Math.round(y)); if (dir < 0) lc.scale(-1, 1); if (o.rot) lc.rotate(o.rot);
+  const wag = Math.sin((o.t || 0)*18)*h*.5;
+  Tri(-len*.42, 0, -len*.72, -h - wag, -len*.72, h - wag, back);
+  Tri(-len*.05, -h*.8, len*.15, -h*.8, -len*.12, -h*1.7, back);
+  lc.fillStyle = body; lc.beginPath(); lc.ellipse(0, 0, len/2, h, 0, 0, TAU); lc.fill();
+  lc.save(); lc.beginPath(); lc.ellipse(0, 0, len/2, h, 0, 0, TAU); lc.clip();
+  lc.fillStyle = 'rgba(255,255,255,.35)'; lc.fillRect(-len/2, h*.25, len, h);
+  if (S.pat === 'bands'){ [.2, -.15].forEach(u => { lc.fillStyle = S.pc[0]; lc.fillRect(u*len - 2, -h, 4, h*2); }); }
+  if (S.pat === 'spots' || S.pat === 'mottle'){ const r = mulberry32(len); for (let i = 0; i < 6; i++){ lc.fillStyle = S.pc[i % S.pc.length]; lc.fillRect(-len*.35 + r()*len*.6, -h*.7 + r()*h, 3, 2); } }
+  if (S.pat === 'line' || S.pat === 'neon'){ lc.fillStyle = S.pc[0]; lc.fillRect(-len*.4, -h*.15, len*.8, 2); }
+  if (o.cooked){ lc.fillStyle = `rgba(110,55,15,${o.cooked*.75})`; lc.fillRect(-len/2, -h, len, h*2); if (o.cooked > .4){ lc.fillStyle = 'rgba(40,18,5,.8)'; for (let k = -2; k <= 2; k++) lc.fillRect(k*len*.14 - 1, -h, 2, h*2); } }
+  for (let k = 0; k < (o.cuts || 0); k++){ lc.fillStyle = '#7a1f1f'; lc.fillRect(len*(.25 - k*.22), -h, 1, h*2); }
+  lc.restore();
+  if (!o.cooked || o.cooked < .8){ Pr(len*.3, -h*.35, 3, 3, '#ffffff'); Pr(len*.3 + 1, -h*.35 + 1, 2, 2, '#111'); }
+  else { Pr(len*.3, -h*.2, 3, 1, '#222'); }
+  lc.restore();
+}
+const easeOut = k => 1 - (1-k)*(1-k), easeIn = k => k*k;
+const CUTS = {
+  pond(t, ap){
+    burst('#ffd6e4', '#ffeaa8', t*.5);
+    Pr(0, 182, 120, 32, '#4c7f36');
+    const sway = t > 1 ? Math.sin(t*4)*4 : 0;
+    Pr(59 + sway*.3, 30, 2, 40, '#d23a3a');
+    lc.save(); lc.translate(sway, 0);
+    Dk(60, 128, 30, 38, 'rgba(255,255,255,.55)'); Dk(60, 140, 27, 25, 'rgba(90,190,240,.75)');
+    Tri(48, 92, 72, 92, 60, 70, 'rgba(255,255,255,.6)'); Pr(55, 70, 10, 4, '#d23a3a');
+    if (t < .9){ const k = easeIn(clamp((t - .25)/.65, 0, 1)); pixFish(60, lerp(-20, 138, k), 30, ap, 1, { t, rot: Math.PI/2 }); }
+    else { pixFish(60 + Math.sin(t*3)*10, 142, 28, ap, Math.cos(t*3) > 0 ? 1 : -1, { t }); }
+    Pr(42, 104, 3, 30, 'rgba(255,255,255,.7)');
+    lc.restore();
+    if (t > .9 && t < 1.3) for (let i = 0; i < 8; i++) Pr(60 + Math.cos(i)*20*(t - .9)*3, 110 - (t - .9)*40 - (i % 3)*4, 2, 2, '#bff4ff');
+    sparkle(t, 4, 10, '#ffffff');
+  },
+  sea(t, ap){
+    burst('#ffcf4a', '#ffb02e', t*.6);
+    Pr(0, 186, 120, 28, '#2a8fd0'); for (let x = 0; x < 120; x += 8) Pr(x + (t*20 % 8), 184, 5, 2, '#bfe9ff');
+    const shake = t > 1.5 && t < 1.95 ? Math.sin(t*60)*2 : 0;
+    // 钓鱼佬
+    Pr(84, 104, 30, 46, '#c9b27a'); Pr(84, 104, 30, 4, '#a8925c'); Pr(90, 112, 6, 8, '#a8925c');
+    Dk(98, 90, 11, 11, '#f2c08f'); Pr(86, 76, 24, 6, '#3f7d3a'); Pr(90, 70, 16, 7, '#4f9a48');
+    Pr(90, 87, 7, 3, '#111'); Pr(100, 87, 7, 3, '#111'); Pr(97, 88, 3, 1, '#111');
+    Pr(92, 95, 11, 3, '#ffffff'); Pr(92, 98, 11, 1, '#7a2a1a');
+    if (t > 2){ Pr(76, 108, 10, 6, '#f2c08f'); Pr(76, 100, 4, 9, '#f2c08f'); } else Pr(78, 116, 8, 6, '#f2c08f');
+    // 水桶
+    lc.save(); lc.translate(shake, 0);
+    for (let y = 136; y < 182; y++){ const w = 18 - (y - 136)*.09; Pr(48 - w, y, w*2, 1, (y > 146 && y < 150) || (y > 166 && y < 170) ? '#7e8a94' : '#9aa6b0'); }
+    Dk(48, 136, 18, 4, '#cfd8de'); Dk(48, 136, 15, 3, '#4ab0e8');
+    lc.strokeStyle = '#6b757d'; lc.lineWidth = 1.5; lc.beginPath(); lc.arc(48, 136, 16, Math.PI*1.05, Math.PI*1.95); lc.stroke();
+    if (t >= 1.5){ const wig = Math.sin(t*20)*.4; pixFish(48, 128, 20, ap, 1, { t, rot: -Math.PI/2 + wig }); Dk(48, 137, 15, 3, '#4ab0e8'); }
+    lc.restore();
+    if (t < 1.5){
+      let x, y, rot;
+      if (t < 1){ const k = easeOut(t); x = lerp(20, 40, k); y = lerp(200, 40, k); rot = -1.2 + t*2; }
+      else { const k = easeIn((t - 1)/.5); x = lerp(40, 48, k); y = lerp(40, 128, k); rot = .8 + k*2; }
+      pixFish(x, y, 30, ap, 1, { t, rot });
+      for (let i = 0; i < 6; i++) Pr(x - 6 + i*3, y + 10 + (i % 2)*6, 2, 2, '#bfe9ff');
+    }
+    if (t > 1.5 && t < 2.1) for (let i = 0; i < 10; i++){ const k = (t - 1.5)/.6; Pr(48 + Math.cos(i*.7 + 3.6)*30*k, 132 - Math.sin(i*.7 + .3)*24*k + 30*k*k, 2, 2, '#bfe9ff'); }
+  },
+  sushi(t, ap){
+    burst('#dff4ea', '#c4e8da', t*.4);
+    Pr(0, 150, 120, 64, '#c99a5e'); for (let y = 154; y < 214; y += 6) Pr(0, y, 120, 1, '#b8874d');
+    if (t < 1.7){
+      Pr(12, 116, 96, 34, '#a67a45'); Pr(14, 114, 92, 34, '#ecc893'); Pr(14, 144, 92, 2, '#c99f63');
+      const strikes = [.5, .9, 1.3]; let cuts = 0; strikes.forEach(s => { if (t > s + .12) cuts++; });
+      const slideIn = easeOut(clamp(t/.35, 0, 1));
+      pixFish(lerp(-40, 60, slideIn), 128, 72, ap, 1, { t: t < .4 ? t : 0, cuts });
+      strikes.forEach((s, i) => {
+        const kx = 76 - i*16;
+        if (t > s - .2 && t < s + .35){
+          const k = clamp((t - (s - .2))/.2, 0, 1), ky = lerp(30, 104, easeIn(k));
+          Pr(kx - 1, ky - 46, 4, 46, '#d9dee3'); Pr(kx + 2, ky - 46, 2, 46, '#9aa3ab'); Pr(kx - 1, ky - 64, 6, 18, '#2a2420');
+          if (t > s && t < s + .1){ Pr(kx - 10, 112, 22, 1, '#ffffff'); Pr(kx + 6, 104, 1, 10, '#ffffff'); Pr(kx - 8, 104, 1, 8, '#ffffff'); }
+        }
+      });
+    } else {
+      const k = easeOut(clamp((t - 1.7)/.25, 0, 1));
+      Dk(60, 136, 46*k + 1, 14*k + 1, '#d8d4c6'); Dk(60, 134, 44*k + 1, 12*k + 1, '#fbfaf5');
+      if (k >= 1){
+        const slice = { 金枪鱼: '#c2364a', 真鲷: '#f6d6cf', 鲭鱼: '#d4ddda', 竹荚鱼: '#ead4c2', 比目鱼: '#f3ece4' }[ap.sp.n] || '#ff9a6e';
+        [42, 78].forEach(x => { Pr(x - 12, 126, 24, 9, '#fffdf5'); Pr(x - 13, 128, 1, 6, '#e8e4d8'); Pr(x - 14, 121, 28, 6, slice); Pr(x - 12, 122, 24, 1, 'rgba(255,255,255,.55)'); for (let s = -10; s < 12; s += 6) Pr(x + s, 121, 1, 6, 'rgba(255,255,255,.35)'); });
+        Pr(98, 128, 10, 6, '#7fbf5a'); Pr(100, 126, 6, 2, '#a5d77e');
+        sparkle(t, 7, 12, '#ffffff');
+      }
+    }
+  },
+  grill(t, ap){
+    burst('#ff8a3a', '#ff5a2a', t*.7);
+    Pr(0, 170, 120, 44, '#3a1a12');
+    if (t < 1.6){
+      for (let i = 0; i < 12; i++){ const fx = 20 + i*7, fh = 10 + Math.abs(Math.sin(t*14 + i*1.7))*12; Tri(fx - 4, 168, fx + 4, 168, fx, 168 - fh, i % 2 ? '#ffd23f' : '#ff7a1a'); }
+      Pr(16, 116, 88, 4, '#4a4b50'); Pr(16, 152, 88, 4, '#4a4b50');
+      pixFish(60, 136, 74, ap, 1, { cooked: clamp(t/1.5, 0, 1) });
+      for (let i = 0; i < 9; i++) Pr(18 + i*10, 116, 2, 40, '#55565c');
+      for (let i = 0; i < 5; i++){ const st = (t*1.2 + i*.4) % 1.6; Dk(30 + i*16 + Math.sin(st*4 + i)*4, 112 - st*50, 4 + st*4, null, `rgba(200,200,200,${.6 - st*.35})`); }
+    } else {
+      if (t < 1.72) Pr(0, 0, 120, 214, 'rgba(255,255,255,.85)');
+      const x = lerp(170, 60, easeOut(clamp((t - 1.6)/.45, 0, 1)));
+      Pr(x - 50, 112, 100, 46, '#2c2c30'); Pr(x - 47, 115, 94, 40, '#5a2414'); Pr(x - 47, 115, 94, 3, '#7a3018');
+      pixFish(x, 134, 76, ap, 1, { cooked: 1 });
+      const r = mulberry32(21); for (let i = 0; i < 14; i++){ const cx = x - 40 + r()*80, cy = 120 + r()*30; if (i % 2){ Pr(cx, cy, 4, 3, '#d4201a'); Pr(cx + 1, cy + 1, 2, 1, '#ff8a6a'); } else Pr(cx, cy, 3, 2, '#5fbf3a'); }
+      for (let i = 0; i < 4; i++){ const st = (t*1.3 + i*.3) % 1; for (let k = 0; k < 6; k++) Pr(x - 30 + i*20 + Math.sin(st*6 + k)*3, 108 - st*40 - k*3, 2, 2, `rgba(255,255,255,${.7 - st*.6})`); }
+    }
+  },
+  tank(t, ap){
+    burst('#cbb8ff', '#ab95f2', t*.5);
+    Pr(0, 172, 120, 42, '#d9b48a'); for (let x = 0; x < 120; x += 20) Pr(x, 172, 1, 42, '#c39b6f');
+    let cx, cy = 132, hasFish = t > 1.05;
+    if (t < .6) cx = lerp(160, 80, easeOut(t/.6));
+    else if (t < .9) cx = 80;
+    else if (t < 1.05) cx = lerp(80, 52, (t - .9)/.15);
+    else if (t < 1.4) cx = lerp(52, 72, (t - 1.05)/.35);
+    else cx = lerp(72, -50, (t - 1.4)/1.6);
+    const bob = t > 1.4 ? Math.abs(Math.sin(t*10))*3 : 0; cy -= bob;
+    if (!hasFish){ const hop = Math.abs(Math.sin(t*8))*12; pixFish(34, 164 - hop, 26, ap, 1, { t, rot: Math.sin(t*8)*.5 }); }
+    if (t > 1.4){ for (let i = 0; i < 4; i++){ const px = 90 - i*22; if (cx < px - 10) { Dk(px, 192 + (i % 2)*6, 3, 2, '#b0875e'); Dk(px - 3, 188 + (i % 2)*6, 1, 1, '#b0875e'); Dk(px + 3, 188 + (i % 2)*6, 1, 1, '#b0875e'); } } }
+    if (t > 1.2){ Dk(cx + 22, cy + 30, 22, 14, '#f39a3c'); for (let k = 0; k < 3; k++) Pr(cx + 14 + k*8, cy + 18, 3, 10, '#c96d1d'); Pr(cx + 40, cy + 16 - Math.sin(t*6)*4, 4, 18, '#f39a3c'); Pr(cx + 6 + Math.sin(t*10)*3, cy + 40, 6, 6, '#f39a3c'); Pr(cx + 30 - Math.sin(t*10)*3, cy + 40, 6, 6, '#f39a3c'); }
+    Tri(cx - 22, cy - 10, cx - 12, cy - 34, cx - 4, cy - 14, '#f39a3c'); Tri(cx + 22, cy - 10, cx + 12, cy - 34, cx + 4, cy - 14, '#f39a3c');
+    Tri(cx - 18, cy - 13, cx - 12, cy - 28, cx - 8, cy - 15, '#ff9fb4'); Tri(cx + 18, cy - 13, cx + 12, cy - 28, cx + 8, cy - 15, '#ff9fb4');
+    Dk(cx, cy, 25, 20, '#f39a3c'); Dk(cx, cy + 8, 15, 10, '#ffe2c2');
+    Pr(cx - 3, cy - 20, 2, 7, '#c96d1d'); Pr(cx + 2, cy - 20, 2, 7, '#c96d1d'); Pr(cx - 8, cy - 18, 2, 5, '#c96d1d'); Pr(cx + 7, cy - 18, 2, 5, '#c96d1d');
+    if (hasFish && t < 2.2){ Pr(cx - 13, cy - 4, 8, 2, '#3a2a1a'); Pr(cx + 6, cy - 4, 8, 2, '#3a2a1a'); }
+    else { Dk(cx - 9, cy - 3, 5, 6, '#7ad16b'); Dk(cx + 9, cy - 3, 5, 6, '#7ad16b'); Pr(cx - 10, cy - 7, 2, 9, '#111'); Pr(cx + 8, cy - 7, 2, 9, '#111'); Pr(cx - 12, cy - 6, 2, 2, '#fff'); Pr(cx + 6, cy - 6, 2, 2, '#fff'); }
+    Tri(cx - 3, cy + 3, cx + 3, cy + 3, cx, cy + 6, '#ff7a9a');
+    for (const s of [-1, 1]) for (let k = 0; k < 2; k++) Pr(cx + s*12 + (s > 0 ? 0 : -12), cy + 6 + k*4, 12, 1, 'rgba(255,255,255,.9)');
+    if (hasFish) pixFish(cx - 2, cy + 12, 34, ap, -1, { t: t*.5 });
+    else if (t > .85) Pr(cx - 6, cy + 9, 12, 5, '#7a1f2a');
+  },
+};
+function drawCut(cut, ap, sceneId){
+  const t = cut.t, fade = Math.min(clamp(t/.15, 0, 1), clamp((CFG.cutTime - t)/.2, 0, 1));
+  lc.imageSmoothingEnabled = false;
+  (CUTS[sceneId] || CUTS.pond)(t, ap);
+  ctx.save(); ctx.globalAlpha = fade; ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(LR, 0, 0, 120, 214, 0, 0, W, H);
+  ctx.imageSmoothingEnabled = true;
+  ctx.textAlign = 'center';
+  const name = cut.name || '真鱼', who = SCENES[sceneId];
+  ctx.fillStyle = 'rgba(20,12,8,.82)'; rrect(ctx, 20, 64, 320, 64, 14); ctx.fill();
+  const line = `${name} ${who.verb}`; let fs = 24; ctx.font = `400 ${fs}px "ZCOOL KuaiLe", sans-serif`;
+  while (fs > 13 && ctx.measureText(line).width > 296){ fs--; ctx.font = `400 ${fs}px "ZCOOL KuaiLe", sans-serif`; }
+  ctx.fillStyle = '#fff3dc'; ctx.fillText(line, 180, 96 + fs*.35);
+  if (cut.by){ ctx.font = '400 15px "ZCOOL KuaiLe", sans-serif'; const tw = ctx.measureText(`${cut.by} 出手`).width + 24; ctx.fillStyle = 'rgba(20,12,8,.75)'; rrect(ctx, 180 - tw/2, 138, tw, 26, 13); ctx.fill(); ctx.fillStyle = '#f6c445'; ctx.fillText(`${cut.by} 出手`, 180, 156); }
+  ctx.restore();
+}
+
+/* ================= 渲染一帧 ================= */
 let T = 0;
-function render(view){
+function render(v){
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(getBg(v.scene), 0, 0);
   ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
   const sx = FX.shake ? (Math.random()-.5)*6*FX.shake : 0;
-  // 夜市桌面与灯笼光
-  ctx.fillStyle = '#22160f'; ctx.fillRect(0, 0, W, H);
-  let g = ctx.createRadialGradient(70, -10, 10, 70, -10, 260); g.addColorStop(0, 'rgba(255,150,70,.42)'); g.addColorStop(1, 'rgba(255,150,70,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  g = ctx.createRadialGradient(310, 660, 10, 310, 660, 240); g.addColorStop(0, 'rgba(255,80,60,.25)'); g.addColorStop(1, 'rgba(255,80,60,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(0,0,0,.18)'; for (let y=8;y<H;y+=22) ctx.fillRect(0, y, W, 1);
   ctx.save(); ctx.translate(sx, 0);
-  // 塑料盆
-  rrect(8, 58, 344, 524, 30); g = ctx.createLinearGradient(0, 58, 0, 582); g.addColorStop(0, '#4b9cf0'); g.addColorStop(1, '#1f5fbf'); ctx.fillStyle = g; ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 2; rrect(10, 60, 340, 520, 28); ctx.stroke();
-  ctx.save(); rrect(17, 67, 326, 506, 22); ctx.clip();
-  g = ctx.createLinearGradient(0, 67, 0, 573); g.addColorStop(0, '#63d4ee'); g.addColorStop(.55, '#2fa9d8'); g.addColorStop(1, '#1f86c2'); ctx.fillStyle = g; ctx.fillRect(17, 67, 326, 506);
-  ctx.fillStyle = 'rgba(255,255,255,.05)'; for (let y=80;y<573;y+=26) for (let x=30;x<343;x+=26) ctx.fillRect(x, y, 2, 2);
+  ctx.save(); rrect(ctx, WATER.x, WATER.y, WATER.w, WATER.h, WATER.r); ctx.clip();
   if (!causticPat) causticPat = ctx.createPattern(caustic, 'repeat');
+  const ca = CAUSTIC_A[v.scene] || .08;
   ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = .1; ctx.save(); ctx.translate((T*9) % 220, (T*5) % 220); ctx.fillStyle = causticPat; ctx.fillRect(-220, -220, W + 440, H + 440); ctx.restore();
-  ctx.globalAlpha = .08; ctx.save(); ctx.translate(-(T*7) % 220, (T*11) % 220); ctx.scale(1.3, 1.3); ctx.fillStyle = causticPat; ctx.fillRect(-220, -220, W + 440, H + 440); ctx.restore();
+  ctx.globalAlpha = ca; ctx.save(); ctx.translate((T*9) % 220, (T*5) % 220); ctx.fillStyle = causticPat; ctx.fillRect(-220, -220, W + 440, H + 440); ctx.restore();
+  ctx.globalAlpha = ca*.8; ctx.save(); ctx.translate(-(T*7) % 220, (T*11) % 220); ctx.scale(1.3, 1.3); ctx.fillStyle = causticPat; ctx.fillRect(-220, -220, W + 440, H + 440); ctx.restore();
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
-  // 鱼影
-  ctx.fillStyle = 'rgba(6,50,90,.22)';
-  view.fish.forEach((f, i) => { if (!f.alive) return; const ap = view.app[i]; ctx.save(); ctx.translate(f.x + 4, f.y + 8); ctx.rotate(f.a); ctx.beginPath(); ctx.ellipse(-2, 0, 15*ap.size, 6*ap.size, 0, 0, TAU); ctx.fill(); ctx.restore(); });
-  // 饵
-  view.food.forEach(p => { ctx.fillStyle = '#b8742c'; ctx.beginPath(); ctx.arc(p.x, p.y, 3.2, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,220,160,.8)'; ctx.beginPath(); ctx.arc(p.x - 1, p.y - 1, 1.1, 0, TAU); ctx.fill(); });
-  // 自己的鱼的标记（只在自己屏幕上）
-  if (view.me >= 0 && view.fish[view.me] && view.fish[view.me].alive){
-    const f = view.fish[view.me]; ctx.save(); ctx.translate(f.x, f.y);
-    ctx.strokeStyle = 'rgba(246,196,69,.9)'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.lineDashOffset = -T*14;
+  ctx.restore();
+  ctx.fillStyle = 'rgba(6,30,50,.22)';
+  v.fish.forEach((f, i) => { if (!f.alive) return; const ap = v.app[i]; ctx.save(); ctx.translate(f.x + 4, f.y + 8); ctx.rotate(f.a); ctx.beginPath(); ctx.ellipse(-2, 0, ap.sp.L*.6*ap.size, ap.sp.W*.5*ap.size, 0, 0, TAU); ctx.fill(); ctx.restore(); });
+  v.food.forEach(p => { ctx.fillStyle = '#b8742c'; ctx.beginPath(); ctx.arc(p.x, p.y, 3.2, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,220,160,.8)'; ctx.beginPath(); ctx.arc(p.x - 1, p.y - 1, 1.1, 0, TAU); ctx.fill(); });
+  v.casts.forEach(c => { if (toolUnder(v.scene, c.t)) drawTool(ctx, v.scene, c.x, c.y, c.t, c.dur ?? 100, c.i); });
+  if (v.me >= 0 && v.fish[v.me] && v.fish[v.me].alive){
+    const f = v.fish[v.me]; ctx.save(); ctx.translate(f.x, f.y);
+    ctx.strokeStyle = 'rgba(246,196,69,.95)'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.lineDashOffset = -T*14;
     ctx.beginPath(); ctx.arc(0, 0, 21, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
   }
-  if (view.net && view.net.t >= CFG.castDrop && view.net.t < CFG.castResolve) drawNet(view.net.x, view.net.y, view.net.t, view.dur);
-  // 鱼
-  view.fish.forEach((f, i) => { if (f.alive) drawFish(f, view.app[i]); });
-  // 水面高光
-  ctx.fillStyle = 'rgba(255,214,160,.10)';
-  ctx.beginPath(); ctx.ellipse(110 + Math.sin(T*.4)*8, 150, 70, 22, -.3, 0, TAU); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(250 + Math.cos(T*.3)*8, 120, 40, 12, -.3, 0, TAU); ctx.fill();
-  // 波纹
+  v.fish.forEach((f, i) => { if (f.alive) drawFish(ctx, f, v.app[i]); });
+  if (v.scene !== 'pond'){ ctx.fillStyle = 'rgba(235,252,255,.7)'; FX.bub.forEach(b => { ctx.beginPath(); ctx.arc(b.x + Math.sin(b.y*.05)*3, b.y, b.r, 0, TAU); ctx.fill(); }); }
+  if (FG[v.scene]) FG[v.scene](ctx, T);
   FX.ripples.forEach(r => { ctx.strokeStyle = `rgba(255,255,255,${r.a*r.life})`; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, TAU); ctx.stroke(); });
-  // 盆内侧阴影
-  ctx.lineWidth = 16; ctx.strokeStyle = 'rgba(8,40,90,.22)'; rrect(17, 67, 326, 506, 22); ctx.stroke();
-  // 揭晓
-  if (view.reveal >= 0 && view.fish[view.reveal]){
-    const f = view.fish[view.reveal];
-    ctx.fillStyle = 'rgba(6,20,40,.5)'; ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.arc(f.x, f.y, 34, 0, TAU, true); ctx.fill('evenodd');
-    if (!f.alive) drawFish(f, view.app[view.reveal]);
-    ctx.strokeStyle = '#f6c445'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(f.x, f.y, 30 + Math.sin(T*5)*2, 0, TAU); ctx.stroke();
-    ctx.font = '700 15px "ZCOOL KuaiLe", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#f6c445'; ctx.fillText('真鱼在这', f.x, f.y - 42);
+  ctx.lineWidth = 16; ctx.strokeStyle = 'rgba(8,40,60,.18)'; rrect(ctx, WATER.x, WATER.y, WATER.w, WATER.h, WATER.r); ctx.stroke();
+  if (v.reveal.length){
+    ctx.fillStyle = 'rgba(6,20,40,.5)'; ctx.beginPath(); ctx.rect(0, 0, W, H);
+    v.reveal.forEach(i => { const f = v.fish[i]; if (f && f.alive){ ctx.moveTo(f.x + 34, f.y); ctx.arc(f.x, f.y, 34, 0, TAU, true); } }); ctx.fill('evenodd');
+    ctx.font = '400 15px "ZCOOL KuaiLe", sans-serif'; ctx.textAlign = 'center';
+    v.reveal.forEach(i => { const f = v.fish[i]; if (!f || !f.alive) return; ctx.strokeStyle = '#f6c445'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(f.x, f.y, 30 + Math.sin(T*5)*2, 0, TAU); ctx.stroke();
+      ctx.fillStyle = '#f6c445'; ctx.fillText(v.revealNames[i] || '真鱼', f.x, f.y - 42); });
   }
   ctx.restore();
-  drawSplat();
-  // 网
-  if (view.net && !(view.net.t >= CFG.castDrop && view.net.t < CFG.castResolve)) drawNet(view.net.x, view.net.y, view.net.t, view.dur);
-  // 纸屑与文字
+  v.casts.forEach(c => { if (!toolUnder(v.scene, c.t)) drawTool(ctx, v.scene, c.x, c.y, c.t, c.dur ?? 100, c.i); });
+  drawSplat(ctx);
   FX.bits.forEach(b => { ctx.globalAlpha = clamp(b.life*1.6, 0, 1); ctx.fillStyle = b.col; ctx.fillRect(b.x, b.y, b.sz, b.sz); });
   ctx.globalAlpha = 1;
-  ctx.textAlign = 'center'; ctx.font = '700 17px "ZCOOL KuaiLe", sans-serif';
+  ctx.textAlign = 'center'; ctx.font = '400 17px "ZCOOL KuaiLe", sans-serif';
   FX.texts.forEach(t => { ctx.globalAlpha = clamp(t.life, 0, 1); ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(30,20,10,.6)'; ctx.strokeText(t.t, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.t, t.x, t.y); });
   ctx.globalAlpha = 1;
-  ctx.restore();
+  if (v.cut && v.app[v.cut.fi]) drawCut(v.cut, v.app[v.cut.fi], v.scene);
 }
 
 /* ================= 声音 ================= */
 let AC = null, noiseBuf = null;
 function ac(){ if (!AC){ try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } if (AC && AC.state === 'suspended') AC.resume(); return AC; }
-function tone(f, d, type='sine', v=.05, slide=0, delay=0){ const a = ac(); if (!a) return; const t0 = a.currentTime + delay, o = a.createOscillator(), gn = a.createGain(); o.type = type; o.frequency.setValueAtTime(f, t0); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), t0 + d); gn.gain.setValueAtTime(v, t0); gn.gain.exponentialRampToValueAtTime(.0001, t0 + d); o.connect(gn); gn.connect(a.destination); o.start(t0); o.stop(t0 + d + .02); }
-function noise(d, v=.08, freq=1200){ const a = ac(); if (!a) return; if (!noiseBuf){ noiseBuf = a.createBuffer(1, a.sampleRate*.6, a.sampleRate); const ch = noiseBuf.getChannelData(0); for (let i=0;i<ch.length;i++) ch[i] = Math.random()*2-1; }
-  const s = a.createBufferSource(), f = a.createBiquadFilter(), gn = a.createGain(); s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = freq; gn.gain.setValueAtTime(v, a.currentTime); gn.gain.exponentialRampToValueAtTime(.0001, a.currentTime + d); s.connect(f); f.connect(gn); gn.connect(a.destination); s.start(); s.stop(a.currentTime + d); }
+function tone(f, d, type = 'sine', v = .05, slide = 0, delay = 0){ const a = ac(); if (!a) return; const t0 = a.currentTime + delay, o = a.createOscillator(), gn = a.createGain(); o.type = type; o.frequency.setValueAtTime(f, t0); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), t0 + d); gn.gain.setValueAtTime(v, t0); gn.gain.exponentialRampToValueAtTime(.0001, t0 + d); o.connect(gn); gn.connect(a.destination); o.start(t0); o.stop(t0 + d + .02); }
+function noise(d, v = .08, freq = 1200, delay = 0){ const a = ac(); if (!a) return; if (!noiseBuf){ noiseBuf = a.createBuffer(1, a.sampleRate*2, a.sampleRate); const ch = noiseBuf.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random()*2 - 1; }
+  const t0 = a.currentTime + delay, s = a.createBufferSource(), f = a.createBiquadFilter(), gn = a.createGain(); s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = freq; gn.gain.setValueAtTime(v, t0); gn.gain.exponentialRampToValueAtTime(.0001, t0 + d); s.connect(f); f.connect(gn); gn.connect(a.destination); s.start(t0); s.stop(t0 + d); }
+const chime = (delay = 0) => [784, 988, 1318].forEach((f, i) => tone(f, .18, 'triangle', .05, 0, delay + i*.07));
 const SFX = {
   tap: () => tone(700, .05, 'triangle', .04),
   dip: () => { noise(.25, .07, 900); tone(260, .2, 'sine', .04, -120); },
@@ -691,22 +1113,35 @@ const SFX = {
   win: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, .16, 'triangle', .06, 0, i*.11)),
   lose: () => [392, 330, 262].forEach((f, i) => tone(f, .22, 'triangle', .06, 0, i*.15)),
   go: () => { tone(440, .12, 'square', .04); tone(880, .2, 'square', .04, 0, .12); },
-  spit: () => { tone(320, .08, 'square', .05, 300); noise(.4, .12, 1400); },
   beep: () => tone(440, .1, 'square', .035),
+  spit: () => { tone(320, .08, 'square', .05, 300); noise(.4, .12, 1400); },
+};
+const STING = {
+  pond: () => { tone(500, .15, 'sine', .06, -250, .3); noise(.2, .06, 1500, .85); chime(1.2); },
+  sea: () => { noise(.8, .06, 700); noise(.35, .12, 1600, 1.5); tone(300, .2, 'sine', .05, -150, 1.5); chime(2); },
+  sushi: () => { [.5, .9, 1.3].forEach(d => { noise(.06, .2, 3500, d); tone(1800, .05, 'square', .03, -900, d); }); chime(1.8); },
+  grill: () => { noise(1.5, .07, 5000); noise(1.5, .04, 2500, .1); chime(1.8); },
+  tank: () => { tone(650, .35, 'sawtooth', .04, 400, .2); tone(1000, .3, 'sawtooth', .035, -500, .5); noise(.08, .15, 900, 1.0); chime(1.6); },
 };
 document.addEventListener('pointerdown', () => ac(), { once: true });
-/* ================= BGM：界面一首、游戏中一首，无缝循环 ================= */
+function vib(p){ try { navigator.vibrate && navigator.vibrate(p); } catch(e){} }
+
+/* BGM：界面一首、游戏中一首（每个场景可放专属 audio/bgm-场景.mp3，没有就用通用的） */
 const TRACKS = {
   lobby: { src: 'audio/bgm-lobby.mp3', ls: 39.34, le: 78.75, xf: .08, vol: .42 },
   game:  { src: 'audio/bgm-game.mp3',  ls: 6.09,  le: 44.5,  xf: .6,  vol: .38 },
 };
-const BGM = { raw: {}, buf: {}, cur: null, curName: '', want: 'lobby', master: null, muted: false, started: false };
+// 场景专属 BGM 的循环点（秒）；池塘用通用的游戏 BGM
+const LOOPS = { sea: [13.549, 26.430], sushi: [26.839, 50.844], grill: [18.388, 27.986], tank: [23.976, 39.969] };
+SCENE_IDS.forEach(s => { const lp = LOOPS[s] || [0, 0]; TRACKS['game_' + s] = { src: `audio/bgm-${s}.mp3`, ls: lp[0], le: lp[1], xf: lp[0] ? .08 : .04, vol: .38, opt: true }; });
+const BGM = { raw: {}, buf: {}, cur: null, curName: '', master: null, muted: false, started: false };
 try { BGM.muted = localStorage.getItem('hs.mute') === '1'; } catch(e){}
-Object.entries(TRACKS).forEach(([k, t]) => { BGM.raw[k] = fetch(t.src).then(r => r.ok ? r.arrayBuffer() : null).catch(() => null); });
+function rawOf(name){ if (!BGM.raw[name]) BGM.raw[name] = fetch(TRACKS[name].src).then(r => r.ok ? r.arrayBuffer() : null).catch(() => null); return BGM.raw[name]; }
+rawOf('lobby'); rawOf('game');
 function decode(a, ab){ return new Promise(res => { try { const p = a.decodeAudioData(ab, res, () => res(null)); if (p && p.then) p.then(res, () => res(null)); } catch(e){ res(null); } }); }
 async function getBuf(name){
   if (BGM.buf[name] !== undefined) return BGM.buf[name];
-  const a = ac(); const ab = await BGM.raw[name]; if (!a || !ab) return (BGM.buf[name] = null);
+  const a = ac(); const ab = await rawOf(name); if (!a || !ab){ BGM.buf[name] = null; return null; }
   BGM.buf[name] = await decode(a, ab.slice(0)); return BGM.buf[name];
 }
 function bgmSeg(st, when, off, dur, fadeIn){
@@ -717,7 +1152,7 @@ function bgmSeg(st, when, off, dur, fadeIn){
   s.start(when, Math.max(0, off), dur); st.srcs.push(s); st.nextT = end - xf;
   s.onended = () => { st.srcs = st.srcs.filter(x => x !== s); };
 }
-function bgmStop(st, fade=.5){
+function bgmStop(st, fade = .5){
   if (!st) return; clearInterval(st.timer);
   const now = AC.currentTime; st.out.gain.cancelScheduledValues(now); st.out.gain.setValueAtTime(st.out.gain.value, now); st.out.gain.linearRampToValueAtTime(0, now + fade);
   st.srcs.forEach(s => { try { s.stop(now + fade + .05); } catch(e){} });
@@ -725,22 +1160,19 @@ function bgmStop(st, fade=.5){
 async function bgmPlay(name){
   if (BGM.curName === name) return;
   BGM.curName = name; bgmStop(BGM.cur); BGM.cur = null;
-  const buf = await getBuf(name); const a = AC;
+  let buf = await getBuf(name), tname = name;
+  if (!buf && TRACKS[name].opt){ tname = 'game'; buf = await getBuf('game'); }
+  const a = AC;
   if (!buf || !a || BGM.curName !== name) return;
   if (!BGM.master){ BGM.master = a.createGain(); BGM.master.gain.value = BGM.muted ? 0 : 1; BGM.master.connect(a.destination); }
-  const tr = TRACKS[name], out = a.createGain(), t0 = a.currentTime + .05;
+  const base = TRACKS[tname], tr = { ...base, le: base.le || buf.duration - .02 };
+  const out = a.createGain(), t0 = a.currentTime + .05;
   out.gain.setValueAtTime(0, t0); out.gain.linearRampToValueAtTime(tr.vol, t0 + .4); out.connect(BGM.master);
   const st = { tr, buf, out, srcs: [], nextT: 0, timer: 0 };
   bgmSeg(st, t0, 0, Math.min(tr.le, buf.duration), false);
-  const feed = () => { while (st.nextT - a.currentTime < 3) bgmSeg(st, st.nextT, tr.ls - tr.xf, tr.le - tr.ls + tr.xf, true); };
+  const feed = () => { while (st.nextT - a.currentTime < 3) bgmSeg(st, st.nextT, tr.ls - (tr.ls ? tr.xf : 0), tr.le - tr.ls + (tr.ls ? tr.xf : 0), !!tr.ls || true); };
   feed(); st.timer = setInterval(feed, 700);
   BGM.cur = st;
-}
-function bgmUpdate(){
-  if (!BGM.started) return;
-  const inGame = !$('#hud').hidden && $('#s-end').hidden;
-  const want = inGame ? 'game' : 'lobby';
-  if (want !== BGM.curName) bgmPlay(want);
 }
 function setMute(m){
   BGM.muted = m; try { localStorage.setItem('hs.mute', m ? '1' : '0'); } catch(e){}
@@ -748,103 +1180,129 @@ function setMute(m){
   $('#mute-x').hidden = !m; $('#mute').setAttribute('aria-label', m ? '打开音乐' : '关闭音乐');
 }
 setMute(BGM.muted);
-$('#mute').addEventListener('click', e => { e.stopPropagation(); ac(); BGM.started = true; setMute(!BGM.muted); bgmUpdate(); });
-document.addEventListener('pointerdown', () => { if (!BGM.started){ ac(); BGM.started = true; bgmUpdate(); } }, true);
+$('#mute').addEventListener('click', e => { e.stopPropagation(); ac(); BGM.started = true; setMute(!BGM.muted); });
+document.addEventListener('pointerdown', () => { if (!BGM.started){ ac(); BGM.started = true; } }, true);
 document.addEventListener('visibilitychange', () => { if (!AC) return; if (document.hidden) AC.suspend(); else if (BGM.started) AC.resume(); });
-
-function vib(p){ try { navigator.vibrate && navigator.vibrate(p); } catch(e){} }
 
 /* ================= 界面工具 ================= */
 const SCREENS = ['title', 'rules', 'join', 'room', 'end'];
 function show(id){ SCREENS.forEach(s => { $('#s-' + s).hidden = s !== id; }); if (id === 'join') $('#in-nick2').value = $('#in-nick').value; }
 let toastT = null;
-function toast(t, ms=1500){ const el = $('#toast'); el.hidden = true; void el.offsetWidth; el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, ms); }
+function toast(t, ms = 1500){ const el = $('#toast'); el.hidden = true; void el.offsetWidth; el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, ms); }
 let bannerT = null;
-function banner(t, ms=800){ const el = $('#banner'); el.hidden = true; void el.offsetWidth; el.textContent = t; el.hidden = false; clearTimeout(bannerT); bannerT = setTimeout(() => el.hidden = true, ms); }
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+function banner(t, ms = 800){ const el = $('#banner'); el.hidden = true; void el.offsetWidth; el.textContent = t; el.hidden = false; clearTimeout(bannerT); bannerT = setTimeout(() => el.hidden = true, ms); }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function nick(){ return ($('#in-nick').value.trim() || '小鱼干').slice(0, 8); }
 try { const n = localStorage.getItem('hs.nick'); if (n) $('#in-nick').value = n; } catch(e){}
 $('#in-nick').addEventListener('change', () => { try { localStorage.setItem('hs.nick', nick()); } catch(e){} });
 
-/* ================= 运行模式 ================= */
-// M.kind: demo | local | online ； M.role: fish | net | watch
-const M = { kind: 'demo', role: 'watch', game: null, bot: null, endShown: false, lastPh: '', lastCount: -1 };
-const FI = { hold: false, tx: 0, ty: 0, dash: 0, spit: 0, spitLeft: 2, lastTap: 0, lx: 0, ly: 0 };
-const L = { castSeq: 0, cmd: null, cast: null, foodSeq: 0, food: null, knockSeq: 0, knock: null, armed: false, foodLeft: 0, knockLeft: 0 };
-function resetLocalInputs(){
-  FX.splat = null;
-  Object.assign(FI, { hold: false, dash: 0, spit: 0, spitLeft: CFG.spitUses, lastTap: 0 });
-  Object.assign(L, { castSeq: 0, cmd: null, cast: null, foodSeq: 0, food: null, knockSeq: 0, knock: null, armed: false, foodLeft: CFG.foodUses, knockLeft: CFG.knockUses });
+function renderChips(el, sel, enabled, onPick){
+  el.innerHTML = SCENE_IDS.map(id => { const s = SCENES[id]; return `<button class="chip" data-s="${id}" aria-pressed="${id === sel}" ${enabled ? '' : 'disabled'}>${s.name}<small>${s.toolName}</small></button>`; }).join('');
+  if (enabled) el.querySelectorAll('.chip').forEach(b => b.onclick = () => { SFX.tap(); onPick(b.dataset.s); });
+}
+
+/* ================= 状态 ================= */
+const M = { kind: 'demo', game: null, bot: null, scene: 'pond', myKey: 'me', endShown: false, lastCount: -1, lastCutKey: '', ended: false };
+try { const s = localStorage.getItem('hs.scene'); if (SCENES[s]) M.scene = s; } catch(e){}
+const FI = { hold: false, tx: 0, ty: 0, dash: 0, spit: 0, lastTap: 0, lx: 0, ly: 0 };
+const L = { castSeq: 0, cmd: null, cast: null, foodSeq: 0, food: null, knockSeq: 0, knock: null, armed: false, foodLeft: 0, knockLeft: 0, spitLeft: 0 };
+function resetInputs(){
+  FX.splat = null; FX.ripples = []; FX.texts = [];
+  Object.assign(FI, { hold: false, dash: 0, spit: 0, lastTap: 0 });
+  Object.assign(L, { castSeq: 0, cmd: null, cast: null, foodSeq: 0, food: null, knockSeq: 0, knock: null, armed: false, foodLeft: CFG.foodUses, knockLeft: CFG.knockUses, spitLeft: CFG.spitUses });
 }
 function netInput(){ return { cast: L.cmd, food: L.food, knock: L.knock }; }
 
-function onGameEvent(e, remote){
-  const mine = M.role === 'net' && remote;
+/* 当前这局的数据源：自己运行的模拟，或房主发来的快照 */
+function simOwner(){ return M.kind === 'local' || (M.kind === 'online' && ON.hosting && M.game); }
+function info(){
+  if (simOwner() || M.kind === 'demo'){
+    const g = M.game; if (!g) return null;
+    const ns = {}; for (const id in g.netS){ const S = g.netS[id]; ns[id] = [S.nets, Math.round(S.dur), S.food, S.knock, S.i]; }
+    const hs = {}; for (const k of g.humans){ const h = g.huS[k]; hs[k] = [g.hum[k], h.spit, h.caught ? 1 : 0, h.by || '']; }
+    return { ph: g.ph, cd: Math.ceil(g.cd), tl: Math.ceil(g.tl), sc: g.scene, ns, hs, nm: g.names, wr: g.wrong, w: g.winner, why: g.why, bl: g.blindT > 0, cut: g.cut };
+  }
+  const s = ON.st; if (!s) return null;
+  return { ph: s.ph, cd: s.cd, tl: s.tl, sc: s.sc, ns: s.ns || {}, hs: s.hs || {}, nm: s.nm || {}, wr: s.wr, w: s.w, why: s.why, bl: !!s.bl, cut: s.cut };
+}
+function myRole(I){ I = I || info(); if (!I || M.kind === 'demo') return 'watch'; if (I.hs[M.myKey]) return I.hs[M.myKey][2] ? 'caught' : 'fish'; if (I.ns[M.myKey]) return 'net'; return 'watch'; }
+
+function onEvent(e){
+  const I = info(), role = myRole(I), myNet = I && I.ns[M.myKey], myI = myNet ? myNet[4] : -1;
+  const predicted = M.kind === 'online' && !ON.hosting && role === 'net';
+  const sc = SCENES[I ? I.sc : M.scene];
   switch (e.k){
-    case 'dip': if (!mine){ ripple(e.x, e.y, 46); SFX.dip(); } break;
+    case 'dip': if (!(predicted && e.c === myI)){ ripple(e.x, e.y, 46); SFX.dip(); } break;
     case 'lift': ripple(e.x, e.y, 40, .55); SFX.lift(); bits(e.x, e.y, 8, 'rgba(220,245,255,.9)'); break;
-    case 'miss': ftext(e.x, e.y - 34, '空网', '#d8ecf5'); break;
-    case 'scoop': ftext(e.x, e.y - 34, `捞错 ${e.c} 条`, '#ffd9a8'); SFX.scoop(); bits(e.x, e.y, 10, 'rgba(255,255,255,.9)'); if (M.role === 'fish'){ toast('有鱼被捞走了，盆里更空了'); } break;
-    case 'tear': ftext(e.x, e.y - 34, '纸网泡破了', '#ffb4a8'); SFX.rip(); bits(e.x, e.y, 18, '#ffffff'); if (M.role === 'net') vib(40); break;
-    case 'break': ftext(e.x, e.y - 34, '太重了，网破了', '#ffb4a8'); SFX.rip(); bits(e.x, e.y, 22, '#ffffff'); ripple(e.x, e.y, 50); if (M.role === 'net') vib(60); break;
-    case 'food': if (mine) break; for (let k=0;k<4;k++) setTimeout(() => { ripple(e.x + (Math.random()-.5)*28, e.y + (Math.random()-.5)*28, 18, .7); SFX.plop(); }, k*70); break;
-    case 'knock': if (!mine){ FX.shake = .5; SFX.knock(); ripple(180, 320, 260, .35); } vib(50); break;
+    case 'miss': ftext(e.x, e.y - 34, '扑空', '#d8ecf5'); break;
+    case 'scoop': ftext(e.x, e.y - 34, `抓错 ${e.c} 条`, '#ffd9a8'); SFX.scoop(); bits(e.x, e.y, 10, 'rgba(255,255,255,.9)'); break;
+    case 'tear': ftext(e.x, e.y - 34, sc.tear, '#ffb4a8'); SFX.rip(); bits(e.x, e.y, 18, '#ffffff'); if (e.who === M.myKey){ vib(40); L.cast = null; } break;
+    case 'break': ftext(e.x, e.y - 34, sc.heavy, '#ffb4a8'); SFX.rip(); bits(e.x, e.y, 22, '#ffffff'); ripple(e.x, e.y, 50); if (e.who === M.myKey){ vib(60); L.cast = null; } break;
+    case 'food': if (!(predicted)) for (let k = 0; k < 4; k++) setTimeout(() => { ripple(e.x + (Math.random()-.5)*28, e.y + (Math.random()-.5)*28, 18, .7); SFX.plop(); }, k*70); break;
+    case 'knock': if (!(predicted)){ FX.shake = .5; SFX.knock(); ripple(180, 320, 260, .35); } vib(50); break;
     case 'caught': ripple(e.x, e.y, 70); bits(e.x, e.y, 20, '#bff4ff'); vib([80, 40, 120]); break;
-    case 'go': banner('开捞！', 900); SFX.go(); break;
-    case 'spit': SFX.spit(); if (M.role === 'net') blind(e.c); else if (M.role === 'fish'){ const g = M.game, f = g && g.fish[g.player]; if (f) ftext(f.x, f.y - 26, '噗！', '#bff4ff'); } else ftext(180, 300, '有鱼吐口水了', '#bff4ff'); break;
+    case 'go': banner('开始！', 900); SFX.go(); break;
+    case 'spit': SFX.spit(); if (role === 'net') blind(e.c); else ftext(180, 300, '有鱼吐口水了', '#bff4ff'); break;
   }
 }
 
+function demoGame(scene){ const g = new Game(Math.floor(Math.random()*1e9), { demo: true, scene }); return g; }
 function startDemo(){
-  M.kind = 'demo'; M.role = 'watch';
-  M.game = new Game(Math.floor(Math.random()*1e9), { demo: true }); M.bot = null;
+  M.kind = 'demo'; M.game = demoGame(M.scene); M.bot = null; M.ended = false;
   $('#hud').hidden = true; $('#ctrl').hidden = true; $('#banner').hidden = true;
+  renderChips($('#scene-title'), M.scene, true, pickTitleScene);
   show('title');
 }
+function pickTitleScene(s){ M.scene = s; try { localStorage.setItem('hs.scene', s); } catch(e){} M.game = demoGame(s); renderChips($('#scene-title'), s, true, pickTitleScene); }
 
 function startLocal(role){
-  ac(); resetLocalInputs();
-  M.kind = 'local'; M.role = role; M.endShown = false; M.lastCount = -1;
-  M.game = new Game(Math.floor(Math.random()*1e9), { botFish: role === 'net' });
-  M.game.onEvent = e => onGameEvent(e, false);
-  M.bot = role === 'fish' ? new BotNet(M.game) : null;
+  ac(); resetInputs();
+  M.kind = 'local'; M.myKey = 'me'; M.endShown = false; M.lastCount = -1; M.lastCutKey = ''; M.ended = false;
+  const seed = Math.floor(Math.random()*1e9), names = { me: nick(), bot: role === 'net' ? '机器人鱼' : '机器人' };
+  if (role === 'net'){ M.game = new Game(seed, { scene: M.scene, humans: ['bot'], nets: ['me'], bots: ['bot'], names }); M.bot = null; }
+  else { M.game = new Game(seed, { scene: M.scene, humans: ['me'], nets: ['bot'], names }); M.bot = new BotNet(M.game, 'bot', 'me'); }
+  M.game.onEvent = onEvent;
   enterPlayUI();
 }
 
 function enterPlayUI(){
-  show(null); $('#hud').hidden = false; $('#ctrl').hidden = false;
-  $('#h-role').textContent = M.role === 'net' ? '捞鱼人' : M.role === 'fish' ? '你是鱼' : '观战';
-  $('#t-food').hidden = $('#t-knock').hidden = M.role !== 'net';
-  $('#t-spit').hidden = M.role !== 'fish';
-  $('#c-hint').textContent = M.role === 'net' ? '点水面下网，网会慢慢沉下去再捞起' : M.role === 'fish' ? '金圈是你。按住游动，双击冲刺' : '观战中：猜猜哪条是真人';
-  updateTools();
+  show(null); $('#hud').hidden = false; $('#ctrl').hidden = false; $('#banner').hidden = true;
+  updateCtrl();
 }
-function updateTools(){
-  $('#t-food-n').textContent = L.foodLeft; $('#t-knock-n').textContent = L.knockLeft;
-  $('#t-food').disabled = L.foodLeft <= 0; $('#t-knock').disabled = L.knockLeft <= 0;
+function updateCtrl(){
+  const I = info(), role = myRole(I), sc = SCENES[I ? I.sc : M.scene];
+  $('#t-food').hidden = $('#t-knock').hidden = role !== 'net';
+  $('#t-spit').hidden = role !== 'fish';
+  $('#t-knock').firstChild.textContent = sc.knock;
+  $('#t-food-n').textContent = L.foodLeft; $('#t-knock-n').textContent = L.knockLeft; $('#t-spit-n').textContent = L.spitLeft;
+  $('#t-food').disabled = L.foodLeft <= 0; $('#t-knock').disabled = L.knockLeft <= 0; $('#t-spit').disabled = L.spitLeft <= 0;
   $('#t-food').setAttribute('aria-pressed', L.armed ? 'true' : 'false');
-  $('#t-spit-n').textContent = FI.spitLeft; $('#t-spit').disabled = FI.spitLeft <= 0;
-  if (M.role === 'net') $('#c-hint').textContent = L.armed ? '点一下水面撒饵' : '点水面下网，网会慢慢沉下去再捞起';
+  const hint = role === 'net' ? (L.armed ? '点一下水面撒饵' : `点水面出手，${sc.toolName}要一会儿才到位`) : role === 'fish' ? '金圈是你。按住游动，双击冲刺' : role === 'caught' ? '你被抓了，看看队友能不能撑住' : '观战中：猜猜哪条是真人';
+  $('#c-hint').textContent = hint;
+  $('#h-role').textContent = role === 'net' ? sc.actor : role === 'fish' ? '你是鱼' : role === 'caught' ? '被抓了' : '观战';
 }
 
 /* ================= 输入 ================= */
 let activePtr = null;
 function toWorld(e){ const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left)/r.width*W, y: (e.clientY - r.top)/r.height*H }; }
 const inPond = p => p.x > 14 && p.x < 346 && p.y > 62 && p.y < 578;
-function playing(){ return curPh() === 'play'; }
+function playingNow(){ const I = info(); return I && I.ph === 'play' && !I.cut; }
 cv.addEventListener('pointerdown', e => {
   if (M.kind === 'demo') return;
   const p = toWorld(e); if (!inPond(p)) return;
-  if (M.role === 'net'){
-    if (!playing()) return;
-    if (L.armed){ if (L.foodLeft > 0){ L.food = { s: ++L.foodSeq, x: p.x, y: p.y }; L.foodLeft--; if (M.kind === 'online'){ onGameEvent({ k: 'food', x: p.x, y: p.y }, false); } } L.armed = false; updateTools(); return; }
-    const busy = L.cast || (M.kind === 'local' && M.game && M.game.cast);
-    if (busy){ toast('网还在水里'); return; }
+  const I = info(), role = myRole(I);
+  if (role === 'net'){
+    if (!playingNow()) return;
+    const S = I.ns[M.myKey];
+    if (L.armed){ if (L.foodLeft > 0){ L.food = { s: ++L.foodSeq, x: Math.round(p.x), y: Math.round(p.y) }; L.foodLeft--; if (!simOwner()) onEvent({ k: 'food', x: p.x, y: p.y }); } L.armed = false; updateCtrl(); return; }
+    if (S && S[0] <= 0){ toast(`${SCENES[I.sc].toolName}用完了`); return; }
+    const busy = simOwner() ? (M.game.netS[M.myKey] && M.game.netS[M.myKey].cast) : L.cast;
+    if (busy){ toast('还没收回来'); return; }
     const x = Math.round(clamp(p.x, 20, 340)), y = Math.round(clamp(p.y, 70, 570));
-    L.cmd = { s: ++L.castSeq, x, y }; L.cast = { x, y, t: 0 };
-    if (M.kind === 'online'){ ripple(x, y, 46); SFX.dip(); }
+    L.cmd = { s: ++L.castSeq, x, y };
+    if (!simOwner()){ L.cast = { x, y, t: 0 }; ripple(x, y, 46); SFX.dip(); }
     vib(10);
-  } else if (M.role === 'fish'){
+  } else if (role === 'fish'){
     activePtr = e.pointerId; try { cv.setPointerCapture(e.pointerId); } catch(err){}
     FI.hold = true; FI.tx = p.x; FI.ty = p.y;
     const now = performance.now();
@@ -852,23 +1310,16 @@ cv.addEventListener('pointerdown', e => {
     else { FI.lastTap = now; FI.lx = p.x; FI.ly = p.y; }
   }
 });
-cv.addEventListener('pointermove', e => {
-  if (e.pointerId !== activePtr) return; const p = toWorld(e);
-  if (M.role === 'fish'){ FI.tx = p.x; FI.ty = p.y; }
-});
-function release(e){
-  if (e.pointerId !== activePtr) return; activePtr = null;
-  if (M.role === 'fish') FI.hold = false;
-}
+cv.addEventListener('pointermove', e => { if (e.pointerId !== activePtr) return; const p = toWorld(e); FI.tx = p.x; FI.ty = p.y; });
+function release(e){ if (e.pointerId !== activePtr) return; activePtr = null; FI.hold = false; }
 cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', release);
-$('#t-food').addEventListener('click', () => { if (L.foodLeft > 0 && playing()){ L.armed = !L.armed; SFX.tap(); updateTools(); } });
-$('#t-knock').addEventListener('click', () => { if (L.knockLeft > 0 && playing()){ L.knock = { s: ++L.knockSeq }; L.knockLeft--; if (M.kind === 'online') onGameEvent({ k: 'knock' }, false); updateTools(); } });
+$('#t-food').addEventListener('click', () => { if (L.foodLeft > 0 && playingNow()){ L.armed = !L.armed; SFX.tap(); updateCtrl(); } });
+$('#t-knock').addEventListener('click', () => { if (L.knockLeft > 0 && playingNow()){ L.knock = { s: ++L.knockSeq }; L.knockLeft--; if (!simOwner()) onEvent({ k: 'knock' }); updateCtrl(); } });
 $('#t-spit').addEventListener('click', () => {
-  if (FI.spitLeft <= 0 || !playing()) return;
-  const g = M.game; if (g && g.blindT > 0){ toast('口水还没散'); return; }
-  FI.spitLeft--; FI.spit++; vib(25); updateTools();
+  if (L.spitLeft <= 0 || !playingNow()) return;
+  const I = info(); if (I.bl){ toast('口水还没散'); return; }
+  L.spitLeft--; FI.spit++; vib(25); updateCtrl();
 });
-
 
 /* ================= 联机：连接自带服务器（WebSocket） ================= */
 function makeRoom(){
@@ -876,9 +1327,9 @@ function makeRoom(){
   return { join(name){ return new Promise((resolve, reject) => {
     const R = { you: null, ws: null, others: new Map(), mine: {}, snap: [], dirty: false, closed: false, timer: 0 };
     let settled = false;
-    const rebuild = () => { const a = []; if (R.you) a.push({ peer: R.you, presence: R.mine, sameTab: true, isMe: true }); R.others.forEach((p, id) => a.push({ peer: id, presence: p, sameTab: false, isMe: false })); R.snap = a; };
+    const rebuild = () => { const a = []; if (R.you) a.push({ peer: R.you, presence: R.mine, sameTab: true }); R.others.forEach((p, id) => a.push({ peer: id, presence: p, sameTab: false })); R.snap = a; };
     const api = {
-      name, peers: () => R.snap,
+      name, peers: () => R.snap, me: () => R.you,
       presence(patch){ const m = { ...R.mine }; for (const k in patch){ if (patch[k] === null) delete m[k]; else m[k] = patch[k]; } R.mine = m; R.dirty = true; rebuild(); return Promise.resolve(); },
       async leave(){ R.closed = true; clearInterval(R.timer); try { R.ws.close(); } catch(e){} },
       connected: () => !!R.ws && R.ws.readyState === 1,
@@ -901,142 +1352,133 @@ function makeRoom(){
     setTimeout(() => { if (!settled){ settled = true; R.closed = true; clearInterval(R.timer); try { R.ws.close(); } catch(e){} reject({ code: 'upstream_error' }); } }, 8000);
   }); } };
 }
-/* ================= 联机房间 ================= */
-const ON = { room: null, ready: false, g: null, code: '', creator: false, role: 'net', go: 0, lastGo: 0, gid: '', lastSt: null, lastEv: 0, appSeed: -1, app: null, rf: [], st: null, inGame: false, lostAt: 0 };
-(async () => {
-  ON.room = typeof WebSocket !== 'undefined' ? makeRoom() : null;
-  ON.ready = true; updateOnlineAvailability();
-})();
-function updateOnlineAvailability(){
-  const ok = !!ON.room;
-  $('#go-create').disabled = !ok; $('#go-join').disabled = !ok;
-  const note = $('#online-note');
-  if (!ON.ready){ note.hidden = false; note.textContent = '正在连接联机服务…'; }
-  else if (!ok){ note.hidden = false; note.textContent = '这个浏览器不支持联机，先试试下面的单人练习。'; }
-  else note.hidden = true;
-}
-updateOnlineAvailability();
 
-function hsPeers(){ return ON.g ? ON.g.peers().filter(p => p.presence && p.presence.app === 'hs1') : []; }
-function opp(role){ return role === 'fish' ? 'net' : 'fish'; }
+const ON = { room: typeof WebSocket !== 'undefined' ? makeRoom() : null, g: null, code: '', creator: false, role: 'fish', scene: 'pond',
+  hosting: false, gid: '', lastSt: null, lastEv: 0, rf: [], st: null, app: null, appKey: '', inGame: false, lostAt: 0, cutLocal: null };
+if (!ON.room){ $('#go-create').disabled = $('#go-join').disabled = true; const n = $('#online-note'); n.hidden = false; n.textContent = '这个浏览器不支持联机，先试试下面的单人练习。'; }
+
+function hsPeers(){ return ON.g ? ON.g.peers().filter(p => p.presence && p.presence.app === 'hs2') : []; }
 function pres(patch){ if (ON.g) ON.g.presence(patch).catch(() => {}); }
+function hostPeer(){ return hsPeers().find(p => p.presence.cr === 1); }
 
 async function enterRoom(code, creator){
   ac();
   try { ON.g = await ON.room.join('hs-' + code); }
   catch(e){ toast(e && e.code === 'limit_reached' ? '这个房间人满了' : '连不上服务器，检查一下网络'); return; }
-  Object.assign(ON, { code, creator, go: 0, lastGo: 0, gid: '', inGame: false, lastSt: null });
-  ON.role = creator ? 'net' : 'net';
-  pres({ app: 'hs1', nick: nick(), role: ON.role, cr: creator ? 1 : 0, go: 0, st: null, ca: null, fo: null, kn: null });
-  M.kind = 'online'; M.role = 'watch'; M.game = M.game || new Game(1, { demo: true });
+  M.myKey = ON.g.me();
+  const others = hsPeers().filter(p => !p.sameTab);
+  const nf = others.filter(p => p.presence.role === 'fish').length, nn = others.filter(p => p.presence.role === 'net').length;
+  Object.assign(ON, { code, creator, hosting: false, gid: '', inGame: false, lastSt: null, st: null, scene: M.scene, role: creator ? 'net' : (nn === 0 ? 'net' : nf <= nn ? 'fish' : 'net') });
+  pres({ app: 'hs2', nick: nick(), role: ON.role, cr: creator ? 1 : 0, sc: creator ? M.scene : null, st: null, fi: null, ca: null, fo: null, kn: null });
+  M.kind = 'online'; M.game = demoGame(ON.scene);
   $('#room-code').textContent = code;
-  show('room'); renderRoom();
+  toRoom();
 }
 $('#go-create').addEventListener('click', () => {
-  const A = 'abcdefghjkmnpqrstuvwxyz23456789'; let c = ''; for (let i=0;i<4;i++) c += A[Math.floor(Math.random()*A.length)];
+  const A = 'abcdefghjkmnpqrstuvwxyz23456789'; let c = ''; for (let i = 0; i < 4; i++) c += A[Math.floor(Math.random()*A.length)];
   SFX.tap(); enterRoom(c, true);
 });
 $('#go-join').addEventListener('click', () => { SFX.tap(); $('#in-code').value = ''; show('join'); setTimeout(() => $('#in-code').focus(), 50); });
-$('#join-back').addEventListener('click', () => { SFX.tap(); show('title'); });
+$('#join-back').addEventListener('click', () => { SFX.tap(); startDemo(); });
 $('#join-go').addEventListener('click', () => {
   const n2 = $('#in-nick2').value.trim(); if (n2){ $('#in-nick').value = n2; try { localStorage.setItem('hs.nick', n2.slice(0, 8)); } catch(e){} }
   const c = $('#in-code').value.trim().toLowerCase();
   if (!/^[a-z0-9]{4}$/.test(c)){ toast('房间号是 4 位字母或数字'); return; }
   SFX.tap(); enterRoom(c, false);
 });
-$('#role-fish').addEventListener('click', () => setMyRole('fish'));
-$('#role-net').addEventListener('click', () => setMyRole('net'));
-function setMyRole(r){ if (!ON.creator || ON.inGame) return; ON.role = r; pres({ role: r, st: null }); SFX.tap(); renderRoom(); }
-$('#room-start').addEventListener('click', () => { if (!ON.creator) return; ON.go++; pres({ go: ON.go }); SFX.tap(); });
+['fish', 'net', 'watch'].forEach(r => $('#role-' + r).addEventListener('click', () => { if (ON.inGame) return; ON.role = r; pres({ role: r }); SFX.tap(); renderRoom(); }));
+$('#room-start').addEventListener('click', () => { if (ON.creator){ SFX.tap(); startOnlineGame(); } });
 $('#room-leave').addEventListener('click', leaveRoom);
 $('#room-copy').addEventListener('click', async () => {
   const link = location.origin + location.pathname + '?room=' + ON.code;
   try { await navigator.clipboard.writeText(link); toast('已复制，发给好友吧'); }
   catch(e){ window.prompt('长按复制这个链接', link); }
 });
-async function leaveRoom(){ SFX.tap(); try { await ON.g?.leave(); } catch(e){} ON.g = null; ON.inGame = false; startDemo(); }
+async function leaveRoom(){ SFX.tap(); try { await ON.g?.leave(); } catch(e){} ON.g = null; ON.inGame = false; ON.hosting = false; startDemo(); }
+function pickRoomScene(s){ if (!ON.creator) return; ON.scene = s; pres({ sc: s }); M.game = demoGame(s); renderRoom(); }
 
-function resolveRoles(){
-  // 房主自己选身份，加入的人自动拿另一个；多出来的人观战
-  const ps = hsPeers(), me = ps.find(p => p.sameTab);
-  if (!ON.creator){
-    const host = ps.find(p => p.presence.cr === 1 && !p.sameTab);
-    let want = host ? opp(host.presence.role) : 'watch';
-    if (host){ const rivals = ps.filter(p => !p.sameTab && p.presence.cr !== 1 && p.presence.role === want && p.peer < (me ? me.peer : 'zzz')); if (rivals.length) want = 'watch'; }
-    if (want !== ON.role && !ON.inGame){ ON.role = want; pres({ role: want, st: null }); }
-  }
-  return ps;
-}
+function roomCounts(){ const ps = hsPeers(); return { fish: ps.filter(p => p.presence.role === 'fish'), net: ps.filter(p => p.presence.role === 'net'), watch: ps.filter(p => p.presence.role === 'watch') }; }
 function renderRoom(){
-  const ps = hsPeers(), mine = ps.find(p => p.sameTab);
-  const others = ps.filter(p => !p.sameTab);
-  const rolesTxt = { fish: '藏', net: '捞', watch: '观战' };
-  let rows = `<div class="pl"><span class="dot"></span>${esc(nick())}（你）<span class="rt ${ON.role}">${rolesTxt[ON.role]}</span></div>`;
-  others.forEach(p => { rows += `<div class="pl"><span class="dot"></span>${esc(String(p.presence.nick || '好友').slice(0, 8))}${p.presence.cr === 1 ? '（房主）' : ''}<span class="rt ${p.presence.role}">${rolesTxt[p.presence.role] || '观战'}</span></div>`; });
-  if (!others.length) rows += `<div class="pl wait"><span class="dot"></span>等好友加入…</div>`;
+  if ($('#s-room').hidden) return;
+  const ps = hsPeers(), host = hostPeer();
+  if (!ON.creator && host && host.presence.sc && SCENES[host.presence.sc] && host.presence.sc !== ON.scene){ ON.scene = host.presence.sc; M.game = demoGame(ON.scene); }
+  renderChips($('#scene-room'), ON.scene, ON.creator, pickRoomScene);
+  $('#scene-room-label').textContent = ON.creator ? '场景（你来选）' : '场景（房主选）';
+  ['fish', 'net', 'watch'].forEach(r => $('#role-' + r).setAttribute('aria-pressed', ON.role === r));
+  const C = roomCounts(), sc = SCENES[ON.scene];
+  $('#role-net').textContent = sc.actor;
+  $('#room-count').innerHTML = `鱼 <b>${C.fish.length}</b> · ${sc.actor} <b>${C.net.length}</b> · 观战 <b>${C.watch.length}</b>`;
+  const lab = { fish: '鱼', net: sc.actor, watch: '观战' };
+  let rows = ps.map(p => `<div class="pl"><span class="dot"></span>${esc(String(p.presence.nick || '好友').slice(0, 8))}${p.sameTab ? '（你）' : ''}${p.presence.cr === 1 ? ' · 房主' : ''}<span class="rt ${p.presence.role}">${lab[p.presence.role] || '观战'}</span></div>`).join('');
+  if (ps.length < 2) rows += `<div class="pl wait"><span class="dot"></span>等好友加入…</div>`;
   $('#players').innerHTML = rows;
-  $('#role-seg').hidden = !ON.creator;
-  $('#role-fish').setAttribute('aria-pressed', ON.role === 'fish'); $('#role-net').setAttribute('aria-pressed', ON.role === 'net');
-  const hasOpp = others.some(p => p.presence.role === opp(ON.role));
-  const st = $('#room-start');
-  $('#room-copy').hidden = !ON.creator;
-  if (ON.creator){ st.hidden = false; st.disabled = !hasOpp; st.textContent = hasOpp ? '开始' : '等对手进来'; $('#room-tip').textContent = '点「复制邀请链接」发给好友，他打开就能进房间。'; }
-  else { st.hidden = true; const host = others.find(p => p.presence.cr === 1); $('#room-tip').textContent = host ? `等 ${String(host.presence.nick || '房主').slice(0, 8)} 开局` : '房主还没在这个房间里，确认房间号是否正确'; }
+  const active = C.fish.length + C.net.length, st = $('#room-start');
+  st.hidden = !ON.creator;
+  let tip = '';
+  if (ON.creator){
+    const ok = C.fish.length >= 1 && C.net.length >= 1 && active <= CFG.maxPlayers;
+    st.disabled = !ok;
+    tip = active > CFG.maxPlayers ? `最多 ${CFG.maxPlayers} 人上场，多的人请选观战` : C.fish.length < 1 ? '至少要 1 条鱼' : C.net.length < 1 ? `至少要 1 个${sc.actor}` : '人齐了就点开始';
+  } else tip = host ? `等 ${esc(String(host.presence.nick || '房主').slice(0, 8))} 开局` : '房主不在这个房间里，确认房间号是否正确';
+  $('#room-tip').textContent = tip;
+}
+function toRoom(){ ON.inGame = false; M.ended = false; $('#hud').hidden = true; $('#ctrl').hidden = true; $('#banner').hidden = true; show('room'); renderRoom(); }
+
+function startOnlineGame(){
+  const C = roomCounts();
+  if (C.fish.length < 1 || C.net.length < 1 || C.fish.length + C.net.length > CFG.maxPlayers){ renderRoom(); return; }
+  const names = {}; hsPeers().forEach(p => names[p.peer] = String(p.presence.nick || '好友').slice(0, 8));
+  resetInputs();
+  M.game = new Game(Math.floor(Math.random()*1e9), { scene: ON.scene, humans: C.fish.map(p => p.peer), nets: C.net.map(p => p.peer), names });
+  M.game.onEvent = onEvent;
+  ON.hosting = true; ON.inGame = true; M.endShown = false; M.lastCount = -1; M.lastCutKey = ''; M.ended = false;
+  enterPlayUI();
+}
+
+function parseFi(p){ const f = p && p.fi; if (!f || typeof f !== 'object') return {}; const n = v => (typeof v === 'number' && isFinite(v)) ? v : 0; return { hold: f.h === 1, tx: clamp(n(f.x), 0, W), ty: clamp(n(f.y), 0, H), dash: n(f.d), spit: n(f.s) }; }
+function parseNet(p){
+  const n = v => (typeof v === 'number' && isFinite(v)) ? v : 0;
+  const s = o => (o && typeof o === 'object') ? { s: n(o.s), x: clamp(n(o.x), 0, W), y: clamp(n(o.y), 0, H) } : null;
+  return { cast: s(p && p.ca), food: s(p && p.fo), knock: p && p.kn && typeof p.kn === 'object' ? { s: n(p.kn.s) } : null };
 }
 
 let roomTick = 0;
 function onlineFrame(dt){
   if (!ON.g) return;
-  const ps = resolveRoles();
-  roomTick += dt; if (roomTick > .3 && !$('#s-room').hidden){ roomTick = 0; renderRoom(); }
-  const others = ps.filter(p => !p.sameTab);
-  // 鱼方是主机：负责模拟和广播
-  if (ON.role === 'fish'){
-    const creatorP = ON.creator ? null : others.find(p => p.presence.cr === 1);
-    const goVal = ON.creator ? ON.go : (creatorP ? (creatorP.presence.go || 0) : 0);
-    const netP = others.find(p => p.presence.role === 'net');
-    if (goVal > ON.lastGo && netP){
-      ON.lastGo = goVal; resetLocalInputs();
-      const gm = new Game(Math.floor(Math.random()*1e9)); gm.onEvent = e => onGameEvent(e, false);
-      M.game = gm; M.role = 'fish'; M.endShown = false; M.lastCount = -1; ON.inGame = true; ON.lostAt = 0; enterPlayUI();
-    } else if (goVal > ON.lastGo) ON.lastGo = goVal;
-    if (ON.inGame && M.game && !M.game.demo){
-      const nin = netP ? remoteNetIn(netP.presence) : {};
-      M.game.step(dt, FI, nin);
-      pres({ st: M.game.snap() });
-      if (!netP && M.game.ph !== 'end'){ ON.lostAt += dt; if (ON.lostAt > 5){ M.game.end('fish', 'left'); } } else ON.lostAt = 0;
+  roomTick += dt; if (roomTick > .3){ roomTick = 0; renderRoom(); }
+  const ps = hsPeers(), byId = {}; ps.forEach(p => byId[p.peer] = p.presence);
+  if (ON.hosting && M.game && ON.inGame){
+    const g = M.game, fins = {}, nins = {};
+    g.humans.forEach(k => fins[k] = k === M.myKey ? FI : parseFi(byId[k]));
+    g.netIds.forEach(k => nins[k] = k === M.myKey ? netInput() : parseNet(byId[k]));
+    g.step(dt, fins, nins);
+    if (g.ph === 'play' && g.netIds.every(k => !byId[k])) g.end('fish', 'left');
+    pres({ st: g.snap() });
+    return;
+  }
+  const host = ps.find(p => p.presence.cr === 1 && !p.sameTab);
+  const st = host ? host.presence.st : null;
+  if (st && st !== ON.lastSt){
+    ON.lastSt = st;
+    if (st.g !== ON.gid){
+      ON.gid = st.g; ON.lastEv = 0; ON.rf = []; resetInputs(); ON.cutLocal = null;
+      if (st.ph !== 'end'){ ON.inGame = true; M.endShown = false; M.lastCount = -1; M.lastCutKey = ''; M.ended = false; ON.st = st; enterPlayUI(); }
     }
-  } else {
-    if (ON.creator && ON.lastGo !== ON.go) ON.lastGo = ON.go;
-    const hostP = others.find(p => p.presence.role === 'fish' && p.presence.st);
-    const st = hostP ? hostP.presence.st : null;
-    if (st && st !== ON.lastSt){
-      ON.lastSt = st;
-      if (st.g !== ON.gid){
-        ON.gid = st.g; ON.lastEv = 0; ON.rf = []; resetLocalInputs();
-        if (st.ph !== 'end'){ M.role = ON.role === 'net' ? 'net' : 'watch'; M.endShown = false; M.lastCount = -1; ON.inGame = true; enterPlayUI(); }
-      }
-      applySnap(st);
-    }
-    if (ON.inGame){
-      ON.lostAt = hostP ? 0 : ON.lostAt + dt;
-      if (ON.lostAt > 5){ ON.inGame = false; toast('对方离开了'); show('room'); $('#hud').hidden = true; $('#ctrl').hidden = true; }
-    }
-    if (ON.role === 'net'){
-      pres({ ca: L.cmd, fo: L.food, kn: L.knock });
-    }
+    applySnap(st);
+  }
+  if (ON.inGame){
+    ON.lostAt = host ? 0 : ON.lostAt + dt;
+    if (ON.lostAt > 5){ toast('房主离开了'); toRoom(); return; }
+    const role = myRole();
+    if (role === 'fish') pres({ fi: { h: FI.hold ? 1 : 0, x: Math.round(FI.tx), y: Math.round(FI.ty), d: FI.dash, s: FI.spit } });
+    else if (role === 'net') pres({ ca: L.cmd, fo: L.food, kn: L.knock });
   }
 }
-function remoteNetIn(p){
-  const i = p.inp || {};
-  const num = v => (typeof v === 'number' && isFinite(v)) ? v : 0;
-  const s = o => (o && typeof o === 'object') ? { s: num(o.s), x: clamp(num(o.x), 0, W), y: clamp(num(o.y), 0, H) } : null;
-  return { cast: s(p.ca), food: s(p.fo), knock: p.kn && typeof p.kn === 'object' ? { s: num(p.kn.s) } : null };
-}
 function applySnap(st){
-  if (st.sd !== ON.appSeed){ ON.appSeed = st.sd; ON.app = appearances(st.sd); }
+  const key = st.sd + st.sc + st.N;
+  if (key !== ON.appKey){ ON.appKey = key; ON.app = appearances(st.sd, st.sc, st.N); }
   const parts = String(st.f || '').split(';');
-  for (let i=0;i<CFG.fishCount;i++){
+  for (let i = 0; i < st.N; i++){
     const s = parts[i] || '', rf = ON.rf[i] || (ON.rf[i] = { x: 180, y: 320, a: 0, v: 0, ph: Math.random()*6, alive: false, has: false });
     if (!s){ rf.alive = false; continue; }
     const [x, y, a, v] = s.split('.').map(n => parseInt(n, 36));
@@ -1044,111 +1486,126 @@ function applySnap(st){
     if (!rf.has){ rf.x = rf.tx; rf.y = rf.ty; rf.a = rf.ta; rf.has = true; }
   }
   ON.st = st;
-  (st.ev || []).forEach(e => { if (e && e.s > ON.lastEv){ ON.lastEv = e.s; onGameEvent(e, true); } });
+  (st.ev || []).forEach(e => { if (e && e.s > ON.lastEv){ ON.lastEv = e.s; onEvent(e); } });
 }
 function smoothRemote(dt){
-  const k = 1 - Math.exp(-dt*14);
+  const k = 1 - Math.exp(-dt*12);
   ON.rf.forEach(f => { if (!f.alive || !f.has) return; f.x += (f.tx - f.x)*k; f.y += (f.ty - f.y)*k; f.a += angDiff(f.ta, f.a)*k; f.ph += (4 + f.v*.16)*dt; });
 }
 
-/* ================= 主循环 ================= */
-function curPh(){ if (M.kind === 'online' && ON.role !== 'fish') return ON.st && ON.inGame ? ON.st.ph : 'idle'; return M.game ? M.game.ph : 'idle'; }
-function updateNetLocal(dt){
-  if (L.cast){ L.cast.t += dt; if (L.cast.t >= CFG.castTotal) L.cast = null; }
-}
+/* ================= 组装画面数据 ================= */
 function buildView(){
+  const I = info();
+  if (M.kind === 'demo' || (M.kind === 'online' && !ON.inGame && !ON.hosting) || (M.kind === 'online' && ON.hosting && !ON.inGame)){
+    const g = M.game; return { scene: g.scene, fish: g.fish, app: g.app, food: [], casts: [], me: -1, reveal: [], revealNames: {}, cut: null };
+  }
   let v;
-  if (M.kind === 'online' && ON.role !== 'fish'){
-    const st = ON.st;
-    v = { fish: ON.rf.map(f => ({ x: f.x, y: f.y, a: f.a, v: f.v, ph: f.ph, alive: f.alive })), app: ON.app || appearances(1),
-      food: st && st.fo ? String(st.fo).split(';').filter(Boolean).map(s => { const [x, y] = s.split('.').map(Number); return { x, y }; }) : [],
-      me: -1, reveal: st && st.ph === 'end' ? st.rv : -1, dur: st ? st.d : 100, net: null };
-    if (ON.role === 'net' && ON.inGame){ if (L.cast) v.net = { x: L.cast.x, y: L.cast.y, t: L.cast.t }; }
-    else if (st && st.nt) v.net = { x: st.nt[0], y: st.nt[1], t: (st.nt[2] || 0)/100 };
-    if (v.reveal >= 0 && ON.rf[v.reveal] && !ON.rf[v.reveal].alive){ v.fish[v.reveal] = { ...v.fish[v.reveal], alive: false }; }
-  } else {
+  if (simOwner()){
     const g = M.game;
-    v = { fish: g.fish.map(f => ({ x: f.x, y: f.y, a: f.a, v: f.v, ph: f.ph, alive: f.alive && !f.caught })), app: g.app, food: g.food, me: M.role === 'fish' ? g.player : -1,
-      reveal: g.ph === 'end' ? g.player : -1, dur: g.dur, net: null };
-    if (g.ph === 'end' && g.caughtAt){ v.fish[g.player] = { ...v.fish[g.player], alive: false }; }
-    if (g.cast) v.net = { x: g.cast.x, y: g.cast.y, t: g.cast.t };
+    v = { scene: g.scene, fish: g.fish, app: g.app, food: g.food, me: -1, reveal: [], revealNames: {}, cut: null,
+      casts: Object.values(g.netS).filter(S => S.cast).map(S => ({ x: S.cast.x, y: S.cast.y, t: S.cast.t, i: S.i, dur: S.dur })) };
+    if (g.hum[M.myKey] !== undefined && !g.huS[M.myKey].caught) v.me = g.hum[M.myKey];
+    if (g.cut) v.cut = { t: g.cut.t, fi: g.cut.fi, name: g.names[g.cut.key] || '', by: g.names[g.cut.by] || '' };
+    if (g.ph === 'end') g.humans.forEach(k => { if (!g.huS[k].caught){ v.reveal.push(g.hum[k]); v.revealNames[g.hum[k]] = g.names[k] || '真鱼'; } });
+  } else {
+    const st = ON.st || {}, ns = st.ns || {}, my = ns[M.myKey];
+    v = { scene: st.sc || ON.scene, fish: ON.rf, app: ON.app || appearances(1, 'pond', 18), me: -1, reveal: [], revealNames: {}, cut: null,
+      food: st.fo ? String(st.fo).split(';').filter(Boolean).map(s => { const [x, y] = s.split('.').map(Number); return { x, y }; }) : [],
+      casts: (st.ca || []).map(c => ({ x: c[0], y: c[1], t: c[2]/100, i: c[3], dur: 100 })) };
+    Object.values(ns).forEach(n => v.casts.forEach(c => { if (c.i === n[4]) c.dur = n[1]; }));
+    if (my){ v.casts = v.casts.filter(c => c.i !== my[4]); if (L.cast) v.casts.push({ x: L.cast.x, y: L.cast.y, t: L.cast.t, i: my[4], dur: my[1] }); }
+    const hs = st.hs || {};
+    if (hs[M.myKey] && !hs[M.myKey][2]) v.me = hs[M.myKey][0];
+    if (st.cut){
+      const ck = st.cut[2] + ':' + st.cut[1];
+      if (!ON.cutLocal || ON.cutLocal.k !== ck) ON.cutLocal = { k: ck, t: st.cut[0]/100 };
+      else if (Math.abs(ON.cutLocal.t - st.cut[0]/100) > .25) ON.cutLocal.t = st.cut[0]/100;
+      v.cut = { t: Math.min(ON.cutLocal.t, CFG.cutTime - .01), fi: st.cut[1], name: (st.nm || {})[st.cut[2]] || '', by: (st.nm || {})[st.cut[3]] || '' };
+    } else ON.cutLocal = null;
+    if (st.ph === 'end') Object.keys(hs).forEach(k => { if (!hs[k][2]){ v.reveal.push(hs[k][0]); v.revealNames[hs[k][0]] = (st.nm || {})[k] || '真鱼'; } });
   }
   return v;
 }
-function hudInfo(){
-  if (M.kind === 'online' && ON.role !== 'fish'){ const s = ON.st || {}; return { ph: s.ph, cd: s.cd, tl: s.tl ?? CFG.duration, n: s.n ?? CFG.nets, d: s.d ?? 100, wr: s.wr || 0, w: s.w, why: s.why }; }
-  const g = M.game; return { ph: g.ph, cd: Math.ceil(g.cd), tl: Math.ceil(g.tl), n: g.nets, d: Math.round(g.dur), wr: g.wrong, w: g.winner, why: g.why };
-}
-function updateHud(){
-  if ($('#hud').hidden) return;
-  const h = hudInfo();
-  $('#h-time').textContent = h.ph === 'count' ? CFG.duration : h.tl;
-  $('#h-time-p').classList.toggle('warn', h.ph === 'play' && h.tl <= 10);
-  $('#h-wrong').textContent = h.wr;
-  let html = ''; for (let i=0;i<CFG.nets;i++){ const used = i >= h.n, cur = i === h.n - 1; html += `<div class="poi ${used ? 'used' : ''}" style="--d:${cur ? h.d : used ? 0 : 100}"></div>`; }
-  $('#h-nets').innerHTML = html;
-  if (h.ph === 'count' && h.cd !== M.lastCount){ M.lastCount = h.cd; if (h.cd > 0){ banner(String(h.cd), 700); SFX.beep(); } }
-  if (h.ph === 'end' && !M.endShown){ M.endShown = true; setTimeout(() => showEnd(h), 1900); }
-}
 
-function showEnd(h){
-  const role = M.role;
-  const netWin = h.w === 'net';
-  const iWon = (role === 'net' && netWin) || (role === 'fish' && !netWin);
-  const why = { caught: '真鱼被捞上来了', time: '时间到了', nets: '三张纸网都破了', left: '捞鱼人离开了' }[h.why] || '';
-  let big = role === 'watch' ? (netWin ? '捞到了' : '没捞到') : role === 'net' ? (netWin ? '捞到了！' : '它跑了') : (netWin ? '被捞走了' : '混过去了');
-  iWon || role === 'watch' ? SFX.win() : SFX.lose();
-  const netsUsed = CFG.nets - h.n;
+/* ================= HUD 与结算 ================= */
+function updateHud(dt){
+  if ($('#hud').hidden) return;
+  const I = info(); if (!I) return;
+  const role = myRole(I), sc = SCENES[I.sc];
+  $('#h-time').textContent = I.ph === 'count' ? CFG.duration : I.tl;
+  $('#h-time-p').classList.toggle('warn', I.ph === 'play' && I.tl <= 10);
+  $('#h-left').textContent = Object.values(I.hs).filter(h => !h[2]).length;
+  const my = I.ns[M.myKey];
+  const nets = $('#h-nets');
+  if (my){ let html = ''; for (let i = 0; i < CFG.nets; i++){ const used = i >= my[0], cur = i === my[0] - 1; html += `<div class="poi ${used ? 'used' : ''}" style="--d:${cur ? my[1] : used ? 0 : 100};--acc:${sc.acc}"></div>`; } nets.innerHTML = html; nets.hidden = false; }
+  else nets.hidden = true;
+  if (roleCache !== role + I.sc){ roleCache = role + I.sc; updateCtrl(); }
+  if (I.ph === 'count' && I.cd !== M.lastCount){ M.lastCount = I.cd; if (I.cd > 0){ banner(String(I.cd), 700); SFX.beep(); } }
+  const ck = I.cut ? (Array.isArray(I.cut) ? I.cut[2] + ':' + I.cut[1] : I.cut.key + ':' + I.cut.fi) : '';
+  if (ck && ck !== M.lastCutKey){ M.lastCutKey = ck; (STING[I.sc] || STING.pond)(); }
+  if (!ck) M.lastCutKey = '';
+  if (I.ph === 'end' && !M.endShown){ M.endShown = true; setTimeout(() => showEnd(), 1700); }
+}
+let roleCache = '';
+
+function showEnd(){
+  const I = info(); if (!I) return;
+  const role = myRole(I), sc = SCENES[I.sc], netWin = I.w === 'net';
+  const wasNet = !!I.ns[M.myKey], wasFish = !!I.hs[M.myKey];
+  const iWon = (wasNet && netWin) || (wasFish && !netWin);
+  const why = { caught: '真鱼全被抓了', time: '时间到了', nets: `${sc.toolName}全用完了`, left: `${sc.actor}都离开了` }[I.why] || '';
+  const big = !wasNet && !wasFish ? (netWin ? `${sc.actor}赢了` : '鱼赢了') : iWon ? (wasNet ? '全抓到了！' : '混过去了！') : (wasNet ? '让它们跑了' : '被抓光了');
+  (iWon || (!wasNet && !wasFish)) ? SFX.win() : SFX.lose();
+  const fates = Object.keys(I.hs).map(k => { const h = I.hs[k], n = esc(I.nm[k] || '真鱼'), by = h[3] ? esc(I.nm[h[3]] || '') : '';
+    return h[2] ? `<div class="fate"><b>${n}</b><span>${by ? by + ' ' : ''}${sc.act}走了 · ${sc.verb.replace(/^被/, '')}</span></div>` : `<div class="fate alive"><b>${n}</b><span>活下来了</span></div>`; }).join('');
   let btns = '';
-  if (M.kind === 'local') btns = `<div class="row"><button class="btn" id="e-again">再来一局</button><button class="btn paper" id="e-swap">换成${role === 'net' ? '藏' : '捞'}</button></div><button class="btn ghost" id="e-home">回首页</button>`;
-  else if (ON.creator) btns = `<div class="row"><button class="btn" id="e-again">再来一局</button><button class="btn paper" id="e-swap">交换身份</button></div><button class="btn ghost" id="e-room">回房间</button>`;
+  if (M.kind === 'local') btns = `<div class="row"><button class="btn" id="e-again">再来一局</button><button class="btn paper" id="e-swap">换成${wasNet ? '鱼' : sc.actor}</button></div><button class="btn ghost" id="e-home">回首页</button>`;
+  else if (ON.creator) btns = `<div class="row"><button class="btn" id="e-again">再来一局</button><button class="btn paper" id="e-room">回房间</button></div>`;
   else btns = `<p class="note">等房主开下一局</p><button class="btn paper" id="e-room">回房间</button>`;
   $('#end-card').innerHTML = `
-    <div class="eyebrow" style="text-align:center">${netWin ? 'Got it' : 'Slipped away'}</div>
+    <div class="eyebrow" style="text-align:center">${netWin ? 'Caught' : 'Slipped away'} · ${sc.name}</div>
     <div class="end-big ${iWon ? 'win' : ''}">${big}</div>
-    <p style="text-align:center">${why}。金圈里那条就是真鱼。</p>
-    <div class="stats"><div class="stat"><b>${h.wr}</b><span>捞错的鱼</span></div><div class="stat"><b>${netsUsed}</b><span>用掉的网</span></div><div class="stat"><b>${CFG.duration - h.tl}</b><span>用时（秒）</span></div></div>
+    <p style="text-align:center">${why}。金圈里是活下来的真鱼。</p>
+    <div class="fates">${fates}</div>
+    <div class="stats"><div class="stat"><b>${I.wr || 0}</b><span>抓错的鱼</span></div><div class="stat"><b>${Object.keys(I.ns).length}</b><span>${sc.actor}</span></div><div class="stat"><b>${CFG.duration - (I.tl || 0)}</b><span>用时（秒）</span></div></div>
     ${btns}`;
-  const rv = buildViewSafe(); const rf = rv.reveal >= 0 ? rv.fish[rv.reveal] : null;
-  const card = $('#end-card');
-  if (rf && rf.y > 330){ card.style.top = '9%'; card.style.bottom = 'auto'; } else { card.style.top = ''; card.style.bottom = ''; }
+  const rv = buildView(), card = $('#end-card');
+  const ys = rv.reveal.map(i => rv.fish[i] && rv.fish[i].y).filter(y => y != null);
+  if (ys.length && ys.every(y => y > 300)){ card.style.top = '9%'; card.style.bottom = 'auto'; } else { card.style.top = ''; card.style.bottom = ''; }
   $('#ctrl').hidden = true; show('end');
-  const again = $('#e-again'), swap = $('#e-swap'), home = $('#e-home'), room = $('#e-room');
+  const $b = id => $('#' + id);
   if (M.kind === 'local'){
-    again.onclick = () => { SFX.tap(); startLocal(role); };
-    swap.onclick = () => { SFX.tap(); startLocal(role === 'net' ? 'fish' : 'net'); };
-    home.onclick = () => { SFX.tap(); startDemo(); };
+    $b('e-again').onclick = () => { SFX.tap(); startLocal(wasNet ? 'net' : 'fish'); };
+    $b('e-swap').onclick = () => { SFX.tap(); startLocal(wasNet ? 'fish' : 'net'); };
+    $b('e-home').onclick = () => { SFX.tap(); startDemo(); };
   } else {
-    if (again) again.onclick = () => { SFX.tap(); toRoom(); ON.go++; pres({ go: ON.go }); };
-    if (swap) swap.onclick = () => { SFX.tap(); toRoom(); setMyRole(opp(ON.role)); };
-    if (room) room.onclick = () => { SFX.tap(); toRoom(); };
+    if ($b('e-again')) $b('e-again').onclick = () => { SFX.tap(); startOnlineGame(); };
+    if ($b('e-room')) $b('e-room').onclick = () => { SFX.tap(); if (ON.hosting){ ON.hosting = false; M.game = demoGame(ON.scene); pres({ st: null }); } toRoom(); };
   }
 }
-function toRoom(){ ON.inGame = false; M.role = 'watch'; $('#hud').hidden = true; $('#ctrl').hidden = true; $('#banner').hidden = true; show('room'); renderRoom(); }
 
+/* ================= 主循环 ================= */
 let lastT = performance.now();
 function loop(now){
   const dt = Math.min(.05, (now - lastT)/1000); lastT = now; T += dt;
   if (M.kind === 'online') onlineFrame(dt);
-  if (M.role === 'net') updateNetLocal(dt);
-  if (M.kind === 'demo' || M.kind === 'local' || (M.kind === 'online' && ON.role === 'fish' && !ON.inGame)){
-    if (M.game){
-      const nin = M.kind === 'local' ? (M.role === 'net' ? netInput() : M.bot.step(dt)) : { down: false };
-      M.game.step(dt, M.role === 'fish' && M.kind === 'local' ? FI : { hold: false }, nin);
-    }
-  }
-  if (M.kind === 'online' && ON.role !== 'fish') smoothRemote(dt);
+  if (M.kind === 'local' && M.game){
+    const g = M.game, fins = {}, nins = {};
+    if (g.hum.me !== undefined) fins.me = FI;
+    if (g.netS.me) nins.me = netInput();
+    if (M.bot) nins.bot = M.bot.step(dt);
+    g.step(dt, fins, nins);
+  } else if (M.kind === 'demo' || (M.kind === 'online' && !ON.inGame && M.game && M.game.demo)) M.game.step(dt, {}, {});
+  if (L.cast){ L.cast.t += dt; if (L.cast.t >= CFG.castTotal) L.cast = null; }
+  if (ON.cutLocal) ON.cutLocal.t += dt;
+  if (M.kind === 'online' && !ON.hosting) smoothRemote(dt);
   stepFx(dt);
-  const showRemote = M.kind === 'online' && ON.role !== 'fish' && ON.inGame;
-  if (M.game || showRemote) render(buildViewSafe());
-  updateHud(); bgmUpdate();
+  render(buildView());
+  updateHud(dt);
+  const inGame = !$('#hud').hidden && $('#s-end').hidden;
+  if (BGM.started){ const I = inGame ? info() : null; const want = inGame && I ? 'game_' + I.sc : 'lobby'; if (want !== BGM.curName) bgmPlay(want); }
   requestAnimationFrame(loop);
 }
-function buildViewSafe(){
-  if (M.kind === 'online' && ON.role !== 'fish' && !ON.inGame){ const g = M.game; return { fish: g.fish.map(f => ({ ...f, alive: f.alive })), app: g.app, food: [], me: -1, reveal: -1, dur: 100, net: null }; }
-  return buildView();
-}
-requestAnimationFrame(loop);
 
 /* ================= 首页 ================= */
 $('#go-pnet').addEventListener('click', () => { SFX.tap(); startLocal('net'); });
@@ -1160,7 +1617,7 @@ startDemo();
   const code = (new URLSearchParams(location.search).get('room') || '').toLowerCase();
   if (/^[a-z0-9]{4}$/.test(code)){ $('#in-code').value = code; show('join'); }
 })();
+requestAnimationFrame(loop);
 </script>
-
 </body>
 </html>

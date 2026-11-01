@@ -10,7 +10,8 @@ package.json             npm run build（下载字体） / npm start（启动）
 Dockerfile               用 Docker 部署时使用
 scripts/fetch-fonts.mjs  构建时下载页面用到的字体，失败也不影响运行
 public/index.html        游戏本体（玩法参数都在文件里的 CFG 对象中）
-public/audio/            两首 BGM（界面 / 游戏中）
+public/audio/            BGM：bgm-lobby.mp3（界面）、bgm-game.mp3（游戏中通用，池塘用它）
+                         场景专属：bgm-sea（海里）/ bgm-sushi（寿司店）/ bgm-grill（烤鱼店）/ bgm-tank（鱼缸）
 public/fonts/            字体（构建后生成）
 ```
 
@@ -34,4 +35,12 @@ npm start       # 打开 http://localhost:3000
 
 ## 怎么玩
 
-开房间的人得到 4 位房间号，点「复制邀请链接」发给好友，好友打开就能进房间。开房的人选「藏」或「捞」，对方自动拿另一个身份，多出来的人观战。
+- 2～6 人上场，其余观战。开房间的人点「复制邀请链接」发给好友，好友打开就能进房间
+- 每个人自己选当鱼、抓鱼的还是观战；房主选场景并开局
+- 五个场景：池塘（纸网）、海里（鱼钩）、寿司店（手抓）、烤鱼店（抄网）、鱼缸（猫爪）
+- 抓到真鱼时全员播放 3 秒过场动画，计时暂停
+
+## 换 BGM
+
+把 mp3 放进 public/audio/，文件名按上面写的来，重新部署即可。场景专属的文件不存在时，自动用 bgm-game.mp3。
+换成新的场景 BGM 后，要把 public/index.html 里 LOOPS 那一行对应场景的循环点删掉（删掉后整首从头循环），或者把新文件发给 Claude 重新找循环点。
