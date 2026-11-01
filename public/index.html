@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#151019">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>浑水摸鱼</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+</head>
+<body>
+<style>
+/* 布局：9:16 画框居中；画布是庙会金鱼摊的水盆俯视图，上方 HUD、下方操作条压在盆沿外，弹层是灯笼纸卡片 */
+:root{
+  --night:#151019;
+  --wood:#2b1a12;
+  --paper:#fff3dc;
+  --paper-2:#f3dfb8;
+  --ink:#2a1a10;
+  --muted:#9b7d63;
+  --red:#e23b2e;
+  --red-d:#a92519;
+  --gold:#f6c445;
+  --mint:#3fd0b0;
+  --brush:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+  --display:"ZCOOL KuaiLe","PingFang SC","Microsoft YaHei",sans-serif;
+  --body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --num:"Rubik","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%}
+body{margin:0;background:var(--night);color:var(--paper);font-family:var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  box-sizing:border-box;overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#wrap{height:100%;display:grid;place-items:center;padding-block:8px;box-sizing:border-box}
+#frame{position:relative;width:340px;aspect-ratio:9/16;overflow:hidden;border-radius:18px;background:var(--wood);box-shadow:0 20px 60px rgba(0,0,0,.55)}
+#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+
+.btn{font-family:var(--display);font-size:18px;line-height:1;border:0;border-radius:14px;min-height:48px;padding:0 16px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation;
+  background:var(--red);color:var(--paper);box-shadow:0 4px 0 var(--red-d)}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--red-d)}
+.btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btn.paper{background:var(--paper);color:var(--ink);box-shadow:0 4px 0 #cdb48b}
+.btn.paper:active:not(:disabled){box-shadow:0 1px 0 #cdb48b}
+.btn.ghost{background:transparent;color:var(--muted);box-shadow:none;min-height:40px;font-family:var(--body);font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.btn:disabled{opacity:.45;cursor:default}
+
+.card{position:absolute;left:12px;right:12px;bottom:12px;background:var(--paper);color:var(--ink);border-radius:20px;padding:18px 16px 14px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.4);box-sizing:border-box}
+.card::before{content:"";position:absolute;inset:6px;border:1.5px dashed rgba(226,59,46,.35);border-radius:15px;pointer-events:none}
+.card h2{margin:0;font-family:var(--display);font-weight:400;font-size:24px;line-height:1.15;text-wrap:balance}
+.card p{margin:0;font-size:13px;line-height:1.6;color:#6b5240}
+.eyebrow{font-family:var(--num);font-weight:700;font-size:10px;letter-spacing:.18em;color:var(--red);text-transform:uppercase}
+.row{display:flex;gap:8px}
+.row>*{flex:1;min-width:0}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--muted)}
+.field input{font-family:var(--body);font-size:16px;color:var(--ink);background:#fffaf0;border:2px solid var(--paper-2);border-radius:12px;padding:10px 12px;width:100%;box-sizing:border-box;user-select:text;-webkit-user-select:text}
+.field input:focus{outline:none;border-color:var(--red)}
+.code-in{font-family:var(--num)!important;font-weight:800;font-size:28px!important;letter-spacing:.35em;text-align:center;text-transform:lowercase}
+.note{font-size:12px;line-height:1.5;color:var(--muted);text-align:center}
+
+/* 标题 */
+.logo{position:absolute;left:0;right:0;top:12%;text-align:center;pointer-events:none}
+.logo .t{font-family:var(--brush);font-size:62px;white-space:nowrap;line-height:1;color:var(--paper);text-shadow:0 3px 0 var(--red-d),0 8px 24px rgba(0,30,60,.5);letter-spacing:.04em}
+.logo .seal{display:inline-grid;place-items:center;width:34px;height:34px;background:var(--red);color:var(--paper);font-family:var(--brush);font-size:24px;border-radius:6px;transform:rotate(-6deg);margin-left:4px;vertical-align:top;box-shadow:0 2px 0 var(--red-d)}
+.logo .sub{margin-top:12px;display:inline-block;font-size:14px;color:var(--ink);background:rgba(255,243,220,.92);padding:6px 14px;border-radius:999px}
+.title-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.title-grid .wide{grid-column:1/-1}
+.sec{font-size:11px;color:var(--muted);letter-spacing:.08em;display:flex;align-items:center;gap:8px}
+.sec::after{content:"";flex:1;height:1px;background:var(--paper-2)}
+
+/* 房间 */
+.code-big{font-family:var(--num);font-weight:800;font-size:44px;letter-spacing:.3em;text-align:center;color:var(--red);line-height:1;padding-left:.3em}
+.seg{display:flex;background:var(--paper-2);border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;border-radius:9px;background:transparent;font-family:var(--display);font-size:16px;color:var(--ink);min-height:40px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--red);color:var(--paper)}
+.seg button:focus-visible{outline:2px solid var(--ink)}
+.players{display:flex;flex-direction:column;gap:6px}
+.pl{display:flex;align-items:center;gap:10px;background:#fffaf0;border-radius:12px;padding:9px 12px;font-size:14px}
+.pl .rt{margin-left:auto;font-family:var(--display);font-size:14px;padding:3px 10px;border-radius:999px;background:var(--paper-2);color:var(--ink)}
+.pl .rt.fish{background:#ffd9a8}
+.pl .rt.net{background:#ffc7c0}
+.pl .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);flex:none}
+.pl.wait{color:var(--muted)}
+.pl.wait .dot{background:var(--paper-2);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.2}}
+
+/* HUD 与操作条 */
+#hud{position:absolute;left:0;right:0;top:0;height:8.75%;display:flex;align-items:center;gap:6px;padding:0 50px 0 10px;box-sizing:border-box;pointer-events:none}
+.pill{background:rgba(255,243,220,.95);color:var(--ink);border-radius:999px;padding:5px 11px;display:flex;align-items:baseline;gap:3px;font-variant-numeric:tabular-nums}
+.pill b{font-family:var(--num);font-weight:800;font-size:18px;line-height:1}
+.pill small{font-size:11px;color:var(--muted)}
+.pill.warn b{color:var(--red)}
+.role{font-family:var(--display);font-size:14px;color:var(--paper);background:rgba(0,0,0,.35);padding:5px 10px;border-radius:999px}
+.hud-sp{flex:1}
+.nets{display:flex;gap:5px;align-items:center}
+.poi{width:20px;height:20px;border-radius:50%;box-sizing:border-box;border:3px solid var(--red);background:conic-gradient(rgba(255,255,255,.95) calc(var(--d,100)*1%),rgba(255,255,255,.12) 0)}
+.poi.used{border-color:#6a4a3a;background:transparent;opacity:.5}
+#ctrl{position:absolute;left:0;right:0;bottom:0;height:8.75%;display:flex;align-items:center;gap:8px;padding:0 12px;box-sizing:border-box}
+.tool{font-family:var(--display);font-size:15px;border:0;border-radius:12px;height:38px;padding:0 12px;background:var(--paper);color:var(--ink);display:flex;align-items:center;gap:6px;cursor:pointer;box-shadow:0 3px 0 #cdb48b;flex:none;touch-action:manipulation}
+.tool b{font-family:var(--num);font-weight:800;font-size:12px;background:var(--red);color:var(--paper);border-radius:999px;min-width:18px;height:18px;display:grid;place-items:center}
+.tool[aria-pressed="true"]{background:var(--gold)}
+.tool:disabled{opacity:.4}
+.tool:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #cdb48b}
+.tool:focus-visible{outline:2px solid var(--gold)}
+.chint{margin:0;font-size:12px;line-height:1.35;color:rgba(255,243,220,.8);min-width:0}
+
+#mute{position:absolute;top:calc(4.375% - 15px);right:10px;z-index:6;width:32px;height:30px;border:0;border-radius:999px;background:rgba(255,243,220,.95);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+#mute:focus-visible{outline:2px solid var(--gold)}
+#banner{position:absolute;left:0;right:0;top:38%;text-align:center;font-family:var(--brush);font-size:72px;color:var(--paper);text-shadow:0 4px 0 var(--red-d),0 10px 30px rgba(0,0,0,.4);pointer-events:none;animation:bn .35s ease-out}
+@keyframes bn{from{transform:scale(1.4);opacity:0}to{transform:scale(1);opacity:1}}
+#toast{position:absolute;left:50%;top:11%;transform:translateX(-50%);background:var(--paper);color:var(--ink);font-family:var(--display);font-size:16px;padding:8px 16px;border-radius:999px;white-space:nowrap;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.3);animation:tt .2s ease-out}
+@keyframes tt{from{transform:translate(-50%,-6px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+
+/* 结算 */
+.end-big{font-family:var(--brush);font-size:52px;line-height:1;text-align:center;color:var(--red)}
+.end-big.win{color:#1f8f74}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stat{background:#fffaf0;border-radius:12px;padding:8px 6px;text-align:center}
+.stat b{display:block;font-family:var(--num);font-weight:800;font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--muted)}
+
+#s-rules .card{top:12px;overflow-y:auto}
+.rules{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.rules li{display:flex;gap:10px;font-size:13.5px;line-height:1.6;color:var(--ink)}
+.rules li i{font-style:normal;flex:none;width:24px;height:24px;border-radius:50%;background:var(--red);color:var(--paper);font-family:var(--display);font-size:13px;display:grid;place-items:center;margin-top:1px}
+@media (prefers-reduced-motion:reduce){#banner,#toast{animation:none}.pl.wait .dot{animation:none}}
+</style>
+
+<div id="wrap">
+  <div id="frame">
+    <canvas id="cv" aria-label="金鱼水盆"></canvas>
+
+    <div id="hud" hidden>
+      <div class="pill" id="h-time-p"><b id="h-time">75</b><small>秒</small></div>
+      <div class="role" id="h-role">捞鱼人</div>
+      <div class="hud-sp"></div>
+      <div class="nets" id="h-nets" aria-label="纸网"></div>
+      <div class="pill"><small>错</small><b id="h-wrong">0</b></div>
+    </div>
+
+    <div id="ctrl" hidden>
+      <button class="tool" id="t-food" aria-pressed="false">撒饵<b id="t-food-n">2</b></button>
+      <button class="tool" id="t-knock">敲盆<b id="t-knock-n">1</b></button>
+      <button class="tool" id="t-spit">吐口水<b id="t-spit-n">2</b></button>
+      <p class="chint" id="c-hint">点水面下网，网会慢慢沉下去再捞起</p>
+    </div>
+
+    <!-- 标题 -->
+    <section class="screen" id="s-title">
+      <div class="logo"><div class="t">浑水摸鱼<span class="seal">捞</span></div><div class="sub">一盆金鱼，只有一条是人</div></div>
+      <div class="card">
+        <div class="field"><label for="in-nick">你的昵称</label><input id="in-nick" maxlength="8" autocomplete="off" value="小鱼干"></div>
+        <div class="sec">和好友联机</div>
+        <div class="title-grid">
+          <button class="btn" id="go-create">开房间</button>
+          <button class="btn" id="go-join">输入房间号</button>
+        </div>
+        <p class="note" id="online-note" hidden></p>
+        <div class="sec">一个人先练练</div>
+        <div class="title-grid">
+          <button class="btn paper" id="go-pnet">我来捞</button>
+          <button class="btn paper" id="go-pfish">我来藏</button>
+        </div>
+        <button class="btn ghost" id="go-rules">怎么玩</button>
+      </div>
+    </section>
+
+    <!-- 规则 -->
+    <section class="screen" id="s-rules" hidden>
+      <div class="card">
+        <div class="eyebrow">How to play</div>
+        <h2>一个藏，一个捞</h2>
+        <ul class="rules">
+          <li><i>鱼</i><span>你是盆里 18 条金鱼中的一条。按住水面游过去，松手会慢慢停下。学其他鱼：会发呆、会结伴，看到饵会冲，网一下水就会逃。</span></li>
+          <li><i>捞</i><span>点一下水面下网，网要大约 0.75 秒才沉下去捞起，反应快的鱼来得及逃。每下一次网、每多捞一条鱼，纸网都会更破，一次捞太多会直接破掉。一共 3 张网。</span></li>
+          <li><i>错</i><span>捞错的鱼会被拿走，盆里越来越空，真鱼越来越难藏。</span></li>
+          <li><i>饵</i><span>捞鱼人能撒 2 次饵、敲 1 次盆，看谁的反应不自然。鱼可以双击屏幕冲刺，装作受惊；还能吐 2 次口水，让捞鱼人眼前一花，1.5 秒看不清。</span></li>
+          <li><i>胜</i><span>75 秒内捞到真鱼，捞鱼人赢；时间到或者网用完，鱼赢。</span></li>
+        </ul>
+        <button class="btn" id="rules-ok">明白了</button>
+      </div>
+    </section>
+
+    <!-- 加入 -->
+    <section class="screen" id="s-join" hidden>
+      <div class="card">
+        <div class="eyebrow">Join a pond</div>
+        <h2>输入房间号</h2>
+        <p>好友开房间后会看到 4 位房间号，也可以直接点他发来的邀请链接。</p>
+        <div class="field"><label for="in-nick2">你的昵称</label><input id="in-nick2" maxlength="8" autocomplete="off"></div>
+        <div class="field"><label for="in-code">房间号</label><input id="in-code" class="code-in" maxlength="4" autocomplete="off" inputmode="latin" placeholder="····"></div>
+        <button class="btn" id="join-go">进入房间</button>
+        <button class="btn paper" id="join-back">返回</button>
+      </div>
+    </section>
+
+    <!-- 房间 -->
+    <section class="screen" id="s-room" hidden>
+      <div class="card">
+        <div class="eyebrow">Room code</div>
+        <div class="code-big" id="room-code">----</div>
+        <p id="room-tip" style="text-align:center">让好友打开这个页面，点「输入房间号」。</p>
+        <div class="seg" id="role-seg" role="group" aria-label="选择身份">
+          <button id="role-fish" aria-pressed="false">我来藏（鱼）</button>
+          <button id="role-net" aria-pressed="true">我来捞</button>
+        </div>
+        <div class="players" id="players"></div>
+        <button class="btn paper" id="room-copy">复制邀请链接</button>
+        <button class="btn" id="room-start" disabled>开始</button>
+        <button class="btn paper" id="room-leave">离开房间</button>
+      </div>
+    </section>
+
+    <!-- 结算 -->
+    <section class="screen" id="s-end" hidden>
+      <div class="card" id="end-card"></div>
+    </section>
+
+    <button id="mute" aria-label="关闭音乐"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3v7.3A2.3 2.3 0 1 0 7.5 12V6l5-1.2v4.5A2.3 2.3 0 1 0 14 11.4V2z" fill="currentColor"/><path id="mute-x" d="M2 2l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" hidden/></svg></button>
+    <div id="banner" hidden></div>
+    <div id="toast" hidden></div>
+  </div>
+</div>
+
+<script>
+/* ================= 手感参数 ================= */
+const CFG = {
+  fishCount: 18, duration: 75, nets: 3,
+  netR: 28, castDrop: .15, castResolve: .75, castTotal: 1.05, fleeChance: .6, castCost: 15, fishWeight: 30,
+  turn: 3.0, accel: 70, dartSpeed: 118, dartTime: .45,
+  playerMax: 42, fleeR: 62, foodR: 160, foodSpeed: 52, foodUses: 2, knockUses: 1, spitUses: 2, spitBlind: 1.5, spitCover: .8,
+  pond: { x: 24, y: 74, w: 312, h: 492 },
+};
+const W = 360, H = 640, TAU = Math.PI * 2;
+const $ = s => document.querySelector(s);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const angDiff = (a, b) => { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return d; };
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const rid = () => Math.random().toString(36).slice(2, 9);
+
+/* ================= 金鱼外观（由种子决定，两端一致） ================= */
+const TYPES = [
+  { body:'#f0462f', ridge:'rgba(255,196,160,.55)', fin:'rgba(255,112,82,.55)' },
+  { body:'#ff8c22', ridge:'rgba(255,228,165,.6)', fin:'rgba(255,170,84,.5)' },
+  { body:'#fff6ee', ridge:'rgba(255,255,255,.75)', fin:'rgba(255,255,255,.55)', spots:['#ee3d2b'] },
+  { body:'#f4ece0', ridge:'rgba(255,255,255,.55)', fin:'rgba(255,255,255,.5)', spots:['#e8452e','#2a2a30','#f39a3b'] },
+  { body:'#2b2a31', ridge:'rgba(140,140,160,.5)', fin:'rgba(40,40,52,.55)' },
+];
+const TYPE_W = [5, 4, 4, 3, 2];
+function appearances(seed){
+  const r = mulberry32(seed ^ 0x5bd1e995), out = [];
+  const tot = TYPE_W.reduce((a,b)=>a+b, 0);
+  for (let i=0;i<CFG.fishCount;i++){
+    let k = r()*tot, ty = 0; while (k > TYPE_W[ty]) { k -= TYPE_W[ty]; ty++; }
+    out.push({ type: ty, size: .86 + r()*.3, spots: Array.from({length: 3 + Math.floor(r()*3)}, () => ({ u: r()*.9 - .42, v: r()*.9 - .45, s: .16 + r()*.2, c: Math.floor(r()*3) })) });
+  }
+  return out;
+}
+
+/* ================= 游戏模拟（由鱼方这台手机运行） ================= */
+function persona(r){ return { cruise: 22 + r()*16, jitter: .6 + r()*.7, pause: .12 + r()*.16, school: .15 + r()*.2, greed: .72 + r()*.24, calm: .8 + r()*.5, bot: false }; }
+function botPersona(r){ return { cruise: 30 + r()*8, jitter: 1.35, pause: .05, school: .06, greed: .55, calm: 1.6, bot: true }; }
+
+class Game {
+  constructor(seed, opts = {}){
+    this.seed = seed; this.r = mulberry32(seed); this.app = appearances(seed); this.gid = opts.gid || rid();
+    const P = CFG.pond; this.fish = [];
+    for (let i=0;i<CFG.fishCount;i++){
+      const a = this.r()*TAU;
+      this.fish.push({ x: P.x + 24 + this.r()*(P.w-48), y: P.y + 24 + this.r()*(P.h-48), a, ta: a, v: 10, tv: 20, dec: this.r()*2,
+        dartT: 0, dashCd: 0, fleeCd: 0, fleeDelay: null, knockDelay: null, notice: null, mode: 'wander', ph: this.r()*6, alive: true, p: persona(this.r) });
+    }
+    this.demo = !!opts.demo;
+    this.player = this.demo ? -1 : Math.floor(this.r()*CFG.fishCount);
+    if (opts.botFish) this.fish[this.player].p = botPersona(this.r);
+    this.ph = this.demo ? 'demo' : 'count'; this.cd = 3; this.tl = CFG.duration;
+    this.nets = CFG.nets; this.dur = 100; this.net = { x: 180, y: 320, down: false }; this.blocked = false;
+    this.food = []; this.foodUsed = 0; this.knockUsed = 0; this.spitUsed = 0; this.blindT = 0; this.cast = null; this.wrong = 0; this.winner = ''; this.why = '';
+    this.ev = []; this.evs = 0; this.last = { lift: 0, food: 0, knock: 0, dash: 0, spit: 0 }; this.onEvent = null; this.caughtAt = null;
+  }
+  emit(k, x=0, y=0, c=0){ const e = { s: ++this.evs, k, x: Math.round(x), y: Math.round(y), c }; this.ev.push(e); if (this.ev.length > 8) this.ev.shift(); this.onEvent && this.onEvent(e); }
+  step(dt, fin, nin){
+    if (this.ph === 'demo' || this.ph === 'end'){ this.moveFish(dt, fin, { down: false }); return; }
+    if (this.ph === 'count'){ this.cd -= dt; if (this.cd <= 0){ this.ph = 'play'; this.emit('go'); } }
+    else { this.tl -= dt; if (this.tl <= 0){ this.tl = 0; this.end('fish', 'time'); return; } }
+    const playing = this.ph === 'play';
+    // 下网：点一下后网慢慢沉下去，castResolve 秒时判定捞起，castTotal 秒动画结束
+    if (nin.cast && nin.cast.s > this.last.lift){
+      this.last.lift = nin.cast.s;
+      if (playing && !this.cast){ this.cast = { x: nin.cast.x, y: nin.cast.y, t: 0, done: false }; this.emit('dip', nin.cast.x, nin.cast.y); }
+    }
+    if (this.cast){
+      const c = this.cast; c.t += dt;
+      this.net.x = c.x; this.net.y = c.y; this.net.down = c.t < CFG.castResolve;
+      if (!c.done && c.t >= CFG.castResolve){ c.done = true; if (playing) this.resolveLift(c.x, c.y); }
+      if (this.cast && c.t >= CFG.castTotal) this.cast = null;
+    } else this.net.down = false;
+    if (this.ph === 'end') return;
+    if (nin.food && nin.food.s > this.last.food){
+      this.last.food = nin.food.s;
+      if (playing && this.foodUsed < CFG.foodUses){
+        this.foodUsed++;
+        for (let k=0;k<4;k++) this.food.push({ x: clamp(nin.food.x + (this.r()-.5)*28, CFG.pond.x, CFG.pond.x+CFG.pond.w), y: clamp(nin.food.y + (this.r()-.5)*28, CFG.pond.y, CFG.pond.y+CFG.pond.h) });
+        this.emit('food', nin.food.x, nin.food.y);
+      }
+    }
+    if (nin.knock && nin.knock.s > this.last.knock){
+      this.last.knock = nin.knock.s;
+      if (playing && this.knockUsed < CFG.knockUses){
+        this.knockUsed++; this.emit('knock');
+        this.fish.forEach((f, i) => { if (i !== this.player || f.p.bot) f.knockDelay = f.p.bot ? (this.r() < .7 ? .35 + this.r()*.5 : null) : this.r()*.3; });
+      }
+    }
+    this.blindT = Math.max(0, this.blindT - dt);
+    const pf = this.fish[this.player];
+    if (playing && pf && fin.spit > this.last.spit){ this.last.spit = fin.spit; this.spit(); }
+    if (playing && pf && pf.p.bot && this.net.down && this.spitUsed < CFG.spitUses && this.blindT <= 0 && Math.hypot(pf.x-this.net.x, pf.y-this.net.y) < 70 && this.r() < dt*1.4) this.spit();
+    this.moveFish(dt, fin, this.net);
+  }
+  spit(){
+    if (this.spitUsed >= CFG.spitUses || this.blindT > 0) return;
+    this.spitUsed++; this.blindT = CFG.spitBlind;
+    this.emit('spit', 0, 0, Math.floor(this.r()*1e6));
+  }
+  moveFish(dt, fin, net){
+    if (!this.food.length) this.fish.forEach(f => { if (f.notice !== null && f.mode !== 'food') f.notice = null; });
+    for (let i=0;i<this.fish.length;i++){
+      const f = this.fish[i]; if (!f.alive || f.caught) continue;
+      const human = i === this.player && !f.p.bot;
+      if (human) this.human(f, fin, dt); else this.brain(f, dt, net);
+      this.kin(f, dt, human && fin.hold);
+    }
+    // 互相让开，避免叠在一起
+    const F = this.fish;
+    for (let i=0;i<F.length;i++) for (let j=i+1;j<F.length;j++){
+      const a = F[i], b = F[j]; if (!a.alive || !b.alive || a.caught || b.caught) continue;
+      const dx = b.x-a.x, dy = b.y-a.y, d = Math.hypot(dx, dy);
+      if (d > 0 && d < 15){ const p = (15-d)*.5/d; a.x -= dx*p; a.y -= dy*p; b.x += dx*p; b.y += dy*p; }
+    }
+    // 吃饵
+    for (let k=this.food.length-1;k>=0;k--){
+      const pl = this.food[k];
+      for (const f of F){ if (f.alive && !f.caught && Math.hypot(f.x-pl.x, f.y-pl.y) < 10){ this.food.splice(k, 1); f.mode = 'wander'; f.dec = .4; break; } }
+    }
+  }
+  human(f, fin, dt){
+    if (fin.hold){
+      const dx = fin.tx - f.x, dy = fin.ty - f.y, d = Math.hypot(dx, dy);
+      if (d > 8){ f.ta = Math.atan2(dy, dx); f.tv = Math.min(CFG.playerMax, d*.8); } else f.tv = 0;
+    } else f.tv = 0;
+    f.dashCd -= dt;
+    if (fin.dash > this.last.dash){ this.last.dash = fin.dash; if (f.dashCd <= 0){ this.dart(f, f.a + (this.r()-.5)*.5); f.dashCd = 1.2; } }
+  }
+  brain(f, dt, net){
+    const p = f.p; f.fleeCd -= dt;
+    if (net.down && this.ph === 'play' && f.fleeDelay === null && f.fleeCd <= 0 && Math.hypot(f.x-net.x, f.y-net.y) < CFG.fleeR){
+      if (this.r() > (p.bot ? .62 : CFG.fleeChance)){ f.fleeCd = 1.5; }
+      else f.fleeDelay = p.bot ? .18 + this.r()*.35 : (.1 + this.r()*.4)*p.calm;
+    }
+    if (f.fleeDelay !== null){ f.fleeDelay -= dt; if (f.fleeDelay <= 0){ f.fleeDelay = null; this.dart(f, Math.atan2(f.y-net.y, f.x-net.x) + (this.r()-.5)*1.2); f.fleeCd = 1.1; f.mode = 'wander'; } }
+    if (f.knockDelay !== null){ f.knockDelay -= dt; if (f.knockDelay <= 0){ f.knockDelay = null; this.dart(f, this.r()*TAU); } }
+    if (this.food.length && f.notice === null && f.mode !== 'food'){
+      const pl = this.nearestFood(f);
+      if (pl && pl.d < CFG.foodR) f.notice = this.r() < p.greed ? (p.bot ? .6 + this.r()*1 : .2 + this.r()*.7) : -1;
+    }
+    if (f.notice > 0){ f.notice -= dt; if (f.notice <= 0){ f.notice = -1; f.mode = 'food'; } }
+    if (f.mode === 'food'){
+      const pl = this.nearestFood(f);
+      if (!pl){ f.mode = 'wander'; f.dec = .3; }
+      else { f.ta = Math.atan2(pl.y-f.y, pl.x-f.x); f.tv = CFG.foodSpeed*(.85 + p.greed*.2); }
+      return;
+    }
+    f.dec -= dt;
+    if (f.dec <= 0){
+      const r = this.r();
+      if (r < p.pause){ f.tv = this.r()*5; f.dec = .8 + this.r()*1.6; }
+      else if (r < p.pause + p.school){
+        let n = null, nd = 90;
+        for (const o of this.fish){ if (o !== f && o.alive && !o.caught){ const d = Math.hypot(o.x-f.x, o.y-f.y); if (d < nd){ nd = d; n = o; } } }
+        if (n){ f.ta = n.a + (this.r()-.5)*.6; f.tv = Math.max(12, n.v*(.9 + this.r()*.2)); f.dec = 1 + this.r()*1.5; }
+        else { f.ta = f.a + (this.r()*2-1)*1.3*p.jitter; f.tv = p.cruise*(.6 + this.r()*.6); f.dec = .6 + this.r()*1.6; }
+      } else { f.ta = f.a + (this.r()*2-1)*1.3*p.jitter; f.tv = p.cruise*(.6 + this.r()*.6); f.dec = .6 + this.r()*1.6; }
+    }
+  }
+  nearestFood(f){ let best = null, bd = 1e9; for (const pl of this.food){ const d = Math.hypot(pl.x-f.x, pl.y-f.y); if (d < bd){ bd = d; best = pl; } } return best ? { x: best.x, y: best.y, d: bd } : null; }
+  dart(f, ang){ f.ta = ang; f.a += clamp(angDiff(ang, f.a), -1.2, 1.2); f.dartT = CFG.dartTime; f.tv = Math.max(f.tv, 24 + this.r()*12); }
+  kin(f, dt, steering){
+    const P = CFG.pond, m = 34;
+    if (!steering){
+      let wx = 0, wy = 0;
+      if (f.x < P.x + m) wx = 1; else if (f.x > P.x + P.w - m) wx = -1;
+      if (f.y < P.y + m) wy = 1; else if (f.y > P.y + P.h - m) wy = -1;
+      if (wx || wy){ const wa = Math.atan2(wy, wx); f.ta += angDiff(wa, f.ta)*.1; }
+    }
+    const tv = f.dartT > 0 ? CFG.dartSpeed : f.tv;
+    const turn = CFG.turn*(f.dartT > 0 ? 1.5 : 1)*dt;
+    f.a += clamp(angDiff(f.ta, f.a), -turn, turn);
+    f.v += clamp(tv - f.v, -CFG.accel*1.6*dt, CFG.accel*dt*(f.dartT > 0 ? 3 : 1));
+    if (f.dartT > 0) f.dartT -= dt;
+    f.x += Math.cos(f.a)*f.v*dt; f.y += Math.sin(f.a)*f.v*dt;
+    if (f.x < P.x){ f.x = P.x; if (!steering){ f.a = Math.PI - f.a; f.ta = f.a; } }
+    if (f.x > P.x + P.w){ f.x = P.x + P.w; if (!steering){ f.a = Math.PI - f.a; f.ta = f.a; } }
+    if (f.y < P.y){ f.y = P.y; if (!steering){ f.a = -f.a; f.ta = f.a; } }
+    if (f.y > P.y + P.h){ f.y = P.y + P.h; if (!steering){ f.a = -f.a; f.ta = f.a; } }
+    f.ph += (4 + f.v*.16)*dt;
+  }
+  resolveLift(x, y){
+    this.emit('lift', x, y);
+    const inside = [];
+    this.fish.forEach((f, i) => { if (f.alive && !f.caught && Math.hypot(f.x-x, f.y-y) < CFG.netR + 4) inside.push(i); });
+    if (!inside.length){ this.dur -= CFG.castCost; this.emit('miss', x, y); if (this.dur <= 0) this.tear(x, y, 'tear'); return; }
+    if (this.dur - CFG.castCost - inside.length*CFG.fishWeight <= 0){
+      inside.forEach(i => this.dart(this.fish[i], this.r()*TAU));
+      this.tear(x, y, 'break', inside.length); return;
+    }
+    this.dur -= CFG.castCost + inside.length*CFG.fishWeight;
+    if (inside.includes(this.player)){
+      const f = this.fish[this.player]; f.caught = true; f.x = x; f.y = y; f.v = 0; this.caughtAt = { x, y };
+      inside.forEach(i => { if (i !== this.player){ this.fish[i].alive = false; this.wrong++; } });
+      this.emit('caught', x, y); this.end('net', 'caught'); return;
+    }
+    inside.forEach(i => { this.fish[i].alive = false; }); this.wrong += inside.length;
+    this.emit('scoop', x, y, inside.length);
+  }
+  tear(x, y, kind, c=0){
+    this.nets--; this.blocked = true; this.net.down = false; this.emit(kind, x, y, c);
+    if (this.nets <= 0){ this.end('fish', 'nets'); return; }
+    this.dur = 100;
+  }
+  end(w, why){ this.ph = 'end'; this.winner = w; this.why = why; this.net.down = false; this.emit('end'); }
+  snap(){
+    return { g: this.gid, ph: this.ph, cd: Math.max(0, Math.ceil(this.cd)), tl: Math.ceil(this.tl), sd: this.seed, n: this.nets, d: Math.max(0, Math.round(this.dur)),
+      w: this.winner, why: this.why, wr: this.wrong, rv: this.ph === 'end' ? this.player : -1,
+      f: this.fish.map(f => (f.alive ? [Math.round(f.x*2), Math.round(f.y*2), Math.round(((f.a % TAU) + TAU) % TAU / TAU*255), Math.min(35, Math.round(f.v/4))].map(n => n.toString(36)).join('.') : '')).join(';'),
+      fo: this.food.map(p => Math.round(p.x) + '.' + Math.round(p.y)).join(';'),
+      nt: this.cast ? [Math.round(this.cast.x), Math.round(this.cast.y), Math.round(this.cast.t*100)] : null,
+      ev: this.ev.slice(-6) };
+  }
+}
+
+/* ================= 练习用机器人捞鱼人 ================= */
+class BotNet {
+  constructor(g){ Object.assign(this, { g, st: 'think', t: 2.4, x: 180, y: 320, cast: null, food: null, knock: null, seq: { l: 0, f: 0, k: 0 },
+    sus: 0, foodLeft: CFG.foodUses, knockLeft: CFG.knockUses, still: 0, moving: 0, foodWatch: null, knockWatch: null, netNear: 0, netFlag: false, target: -1 }); }
+  observe(dt){
+    const g = this.g, p = g.fish[g.player]; if (!p || !p.alive) return;
+    this.sus *= Math.pow(.97, dt);
+    if (p.v < 4){ this.still += dt; if (this.still > 3.6){ this.sus += 1; this.still = -2; } } else this.still = Math.max(0, this.still);
+    if (p.v > 8){ this.moving += dt; if (this.moving > 9){ this.sus += 1; this.moving = 0; } } else this.moving = 0;
+    if (this.foodWatch){ const w = this.foodWatch; w.t += dt; if (w.t > 1.8){ if (w.d0 < CFG.foodR && Math.hypot(p.x-w.x, p.y-w.y) > w.d0 - 25) this.sus += 2.5; this.foodWatch = null; } }
+    if (this.knockWatch){ this.knockWatch.t += dt; if (p.dartT > 0) this.knockWatch = null; else if (this.knockWatch.t > .9){ this.sus += 2; this.knockWatch = null; } }
+    if (g.net.down && Math.hypot(p.x-g.net.x, p.y-g.net.y) < CFG.fleeR){ this.netNear += dt; if (this.netNear > .75 && p.dartT <= 0 && !this.netFlag){ this.sus += 2; this.netFlag = true; } }
+    else { this.netNear = 0; if (!g.net.down) this.netFlag = false; }
+  }
+  move(x, y, dt, sp){ const dx = x-this.x, dy = y-this.y, d = Math.hypot(dx, dy); if (d > 0){ const s = Math.min(d, sp*dt); this.x += dx/d*s; this.y += dy/d*s; } }
+  step(dt){
+    const g = this.g;
+    if (g.blindT > 0){
+      if (this.st === 'approach'){ this.target = -1; this.st = 'think'; this.t = Math.max(this.t, g.blindT + .3); }
+      this.foodWatch = null; this.knockWatch = null; this.still = 0;
+    } else this.observe(dt);
+    if (g.ph !== 'play') return this.out();
+    if (this.st === 'think'){ this.t -= dt; if (this.t <= 0) this.decide(); }
+    else if (this.st === 'approach'){
+      const f = g.fish[this.target];
+      if (!f || !f.alive){ this.st = 'think'; this.t = .5; }
+      else { const lead = .7, px = f.x + Math.cos(f.a)*f.v*lead, py = f.y + Math.sin(f.a)*f.v*lead; this.move(px, py, dt, 300);
+        if (Math.hypot(px-this.x, py-this.y) < 12 && !g.cast){ this.cast = { s: ++this.seq.l, x: Math.round(this.x), y: Math.round(this.y) }; this.st = 'wait'; this.t = CFG.castTotal + .2; } }
+    } else if (this.st === 'wait'){ this.t -= dt; if (this.t <= 0){ this.st = 'think'; this.t = .6 + Math.random()*1.4; } }
+    return this.out();
+  }
+  decide(){
+    const g = this.g, r = Math.random(), alive = g.fish.map((f, i) => i).filter(i => g.fish[i].alive);
+    if (this.foodLeft > 0 && r < .28 && g.tl < CFG.duration - 6){
+      const c = g.fish[alive[Math.floor(Math.random()*alive.length)]], p = g.fish[g.player];
+      this.food = { s: ++this.seq.f, x: c.x + (Math.random()-.5)*40, y: c.y + (Math.random()-.5)*40 }; this.foodLeft--;
+      this.foodWatch = { x: this.food.x, y: this.food.y, d0: Math.hypot(p.x-this.food.x, p.y-this.food.y), t: 0 };
+      this.st = 'think'; this.t = 2; return;
+    }
+    if (this.knockLeft > 0 && r < .38 && g.tl < CFG.duration - 20){ this.knock = { s: ++this.seq.k }; this.knockLeft--; this.knockWatch = { t: 0 }; this.st = 'think'; this.t = 1.5; return; }
+    const pr = Math.min(.8, .12 + this.sus*.11);
+    this.target = Math.random() < pr ? g.player : alive[Math.floor(Math.random()*alive.length)];
+    this.st = 'approach';
+  }
+  out(){ return { cast: this.cast, food: this.food, knock: this.knock }; }
+}
+
+/* ================= 画布 ================= */
+const cv = $('#cv'), ctx = cv.getContext('2d');
+let SCALE = 1;
+function fitFrame(){
+  const wrap = $('#wrap'), cs = getComputedStyle(wrap);
+  const w = wrap.clientWidth, h = wrap.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  $('#frame').style.width = Math.floor(Math.min(w, h*9/16, 480)) + 'px';
+  const r = $('#frame').getBoundingClientRect(), dpr = Math.min(2.5, window.devicePixelRatio || 1);
+  cv.width = Math.round(r.width*dpr); cv.height = Math.round(r.height*dpr); SCALE = cv.width / W;
+}
+addEventListener('resize', fitFrame); fitFrame();
+
+function rrect(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath(); }
+
+const caustic = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 220; const g = c.getContext('2d'), r = mulberry32(7);
+  g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 1.6; g.lineCap = 'round';
+  for (let i=0;i<70;i++){ const x = r()*220, y = r()*220, a = r()*TAU, l = 14 + r()*30;
+    g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a+1)*l*.6, y + Math.sin(a+1)*l*.6, x + Math.cos(a)*l, y + Math.sin(a)*l); g.stroke(); }
+  return c;
+})();
+let causticPat = null;
+const CRACKS = Array.from({length: 9}, (_, i) => { const r = mulberry32(i + 11), a = i/9*TAU + r()*.5; const pts = [[0,0]]; let d = 0; for (let k=0;k<4;k++){ d += .22 + r()*.12; const aa = a + (r()-.5)*.6; pts.push([Math.cos(aa)*d, Math.sin(aa)*d]); } return pts; });
+
+function drawFish(f, ap){
+  const T = TYPES[ap.type], L = 24*ap.size, Wd = 11*ap.size, sw = Math.sin(f.ph)*.45;
+  ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.a);
+  ctx.fillStyle = T.fin;
+  for (const s of [-1, 1]){
+    ctx.beginPath(); ctx.moveTo(-L*.38, 0);
+    ctx.bezierCurveTo(-L*.6, s*Wd*.2 + sw*Wd*.5, -L*.95, s*Wd*.9 + sw*Wd, -L*1.05, s*Wd*.55 + sw*Wd*1.1);
+    ctx.bezierCurveTo(-L*.85, s*Wd*.25 + sw*Wd*.6, -L*.6, s*Wd*.05, -L*.38, 0); ctx.fill();
+  }
+  ctx.beginPath(); ctx.ellipse(L*.05, Wd*.5, L*.14, Wd*.18, .6 + sw*.3, 0, TAU); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(L*.05, -Wd*.5, L*.14, Wd*.18, -.6 - sw*.3, 0, TAU); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(L*.5, 0);
+  ctx.bezierCurveTo(L*.5, Wd*.55, L*.05, Wd*.62, -L*.42, Wd*.12); ctx.lineTo(-L*.42, -Wd*.12);
+  ctx.bezierCurveTo(L*.05, -Wd*.62, L*.5, -Wd*.55, L*.5, 0); ctx.closePath();
+  ctx.fillStyle = T.body; ctx.fill();
+  if (T.spots){ ctx.save(); ctx.clip(); ap.spots.forEach(s => { ctx.fillStyle = T.spots[s.c % T.spots.length]; ctx.beginPath(); ctx.ellipse(s.u*L, s.v*Wd, s.s*L*.7, s.s*Wd*1.2, 0, 0, TAU); ctx.fill(); }); ctx.restore(); }
+  ctx.strokeStyle = T.ridge; ctx.lineWidth = Wd*.16; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(L*.3, 0); ctx.lineTo(-L*.28, 0); ctx.stroke();
+  for (const s of [-1, 1]){
+    ctx.fillStyle = '#14141a'; ctx.beginPath(); ctx.arc(L*.33, s*Wd*.37, Wd*.14, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(L*.35, s*Wd*.37 - Wd*.05, Wd*.05, 0, TAU); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawNet(x, y, t, dur){
+  // t：下网后经过的秒数。0–0.25 落下，0.25–castResolve 下沉，之后提起
+  const R = CFG.netR, tr = CFG.castResolve, tt = CFG.castTotal;
+  let sc, oy = 0, a = 1, sub = 0;
+  const td = CFG.castDrop;
+  if (t < td){ const k = t/td; sc = 1.3 - .15*k; oy = -36*(1-k)*(1-k); a = k; }
+  else if (t < tr){ const k = (t - td)/(tr - td); sc = 1.15 - .3*k; sub = .62*k; }
+  else { const k = clamp((t - tr)/(tt - tr), 0, 1); sc = .85 + .45*k; oy = -26*k; a = 1 - Math.max(0, (k - .6)/.4); sub = .62*(1-k); }
+  ctx.save(); ctx.translate(x, y + oy); ctx.globalAlpha = a;
+  if (t >= td && t < tr){ const k = (t - td)/(tr - td);
+    ctx.strokeStyle = 'rgba(246,196,69,.95)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(0, 0, R*1.15 + 7, -Math.PI/2, -Math.PI/2 + TAU*(1-k)); ctx.stroke(); }
+  ctx.scale(sc, sc);
+  ctx.strokeStyle = '#e23b2e'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+  const hl = 40*(1 - sub*.8); ctx.beginPath(); ctx.moveTo(R*.72, R*.72); ctx.lineTo(R*.72 + hl, R*.72 + hl); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.fill();
+  const dmg = clamp(1 - dur/100, 0, 1), n = Math.floor(dmg*9);
+  ctx.strokeStyle = 'rgba(70,110,140,.55)'; ctx.lineWidth = 1.2;
+  for (let i=0;i<n;i++){ ctx.beginPath(); CRACKS[i].forEach(([px, py], k) => { const xx = px*R*(.6 + dmg*.5), yy = py*R*(.6 + dmg*.5); k ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }); ctx.stroke(); }
+  if (dmg > .55){ ctx.fillStyle = 'rgba(20,100,150,.35)'; [[.3,.2,.18],[-.35,.1,.14],[.05,-.4,.16]].slice(0, Math.ceil((dmg-.55)*7)).forEach(([u, v, s]) => { ctx.beginPath(); ctx.arc(u*R, v*R, s*R, 0, TAU); ctx.fill(); }); }
+  ctx.lineWidth = 5; ctx.strokeStyle = '#e23b2e'; ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.stroke();
+  ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,205,195,.75)'; ctx.beginPath(); ctx.arc(0, 0, R-2.5, -2.4, -.6); ctx.stroke();
+  if (sub > 0){ ctx.fillStyle = `rgba(40,150,205,${sub})`; ctx.beginPath(); ctx.arc(0, 0, R + 4, 0, TAU); ctx.fill(); }
+  if (t >= tr){ ctx.fillStyle = 'rgba(220,245,255,.9)'; for (let i=0;i<5;i++){ const dy = ((t - tr)*90 + i*9) % 34; ctx.fillRect(-R*.6 + i*R*.3, R*.6 + dy, 2, 4); } }
+  ctx.restore();
+}
+
+/* 视觉特效 */
+const FX = { ripples: [], bits: [], texts: [], shake: 0, splat: null };
+function blind(seed){
+  const r = mulberry32((seed || 1) + 99), P = CFG.pond, cols = 6, rows = 10, cw = P.w/cols, ch = P.h/rows;
+  const cells = []; for (let j=0;j<rows;j++) for (let i=0;i<cols;i++) cells.push([i, j]);
+  for (let k=cells.length-1;k>0;k--){ const m = Math.floor(r()*(k+1)); [cells[k], cells[m]] = [cells[m], cells[k]]; }
+  const keep = cells.slice(0, Math.round(cells.length*CFG.spitCover)), blobs = [];
+  keep.forEach(([i, j]) => { const cx = P.x + (i+.5)*cw, cy = P.y + (j+.5)*ch;
+    blobs.push({ x: cx + (r()-.5)*cw*.4, y: cy + (r()-.5)*ch*.4, r: Math.max(cw, ch)*(.56 + r()*.22), d: r()*.12 });
+    if (r() < .5) blobs.push({ x: cx + (r()-.5)*cw, y: cy + (r()-.5)*ch, r: cw*(.25 + r()*.2), d: .05 + r()*.1 }); });
+  const drops = Array.from({length: 26}, () => ({ x: P.x + r()*P.w, y: P.y + r()*P.h, r: 3 + r()*7, d: r()*.15 }));
+  FX.splat = { t: 0, life: CFG.spitBlind, blobs, drops };
+  vib([30, 20, 30]);
+}
+function drawSplat(){
+  const sp = FX.splat; if (!sp) return;
+  const fadeOut = clamp((sp.life - sp.t)/.35, 0, 1);
+  ctx.save();
+  const layer = (col, grow, extra) => { ctx.fillStyle = col; ctx.beginPath();
+    sp.blobs.forEach(b => { const k = clamp((sp.t - b.d)/.14, 0, 1); if (k <= 0) return; const rr = b.r*(.4 + .6*k)*grow + extra; ctx.moveTo(b.x + rr, b.y); ctx.arc(b.x, b.y, rr, 0, TAU); });
+    ctx.fill(); };
+  ctx.globalAlpha = fadeOut;
+  layer('rgba(120,200,225,.95)', 1.04, 3);
+  layer('rgba(226,248,252,.97)', 1, 0);
+  ctx.fillStyle = 'rgba(255,255,255,.9)';
+  sp.blobs.forEach(b => { const k = clamp((sp.t - b.d)/.14, 0, 1); if (k <= 0) return; ctx.beginPath(); ctx.ellipse(b.x - b.r*.3, b.y - b.r*.32, b.r*.22, b.r*.1, -.5, 0, TAU); ctx.fill(); });
+  sp.drops.forEach(d => { if (sp.t < d.d) return; ctx.fillStyle = 'rgba(226,248,252,.95)'; ctx.beginPath(); ctx.arc(d.x, d.y + (sp.t - d.d)*14, d.r, 0, TAU); ctx.fill(); });
+  ctx.restore();
+}
+function ripple(x, y, max=40, a=.6){ FX.ripples.push({ x, y, r: 4, max, a, life: 1 }); }
+function bits(x, y, n, col){ for (let i=0;i<n;i++){ const a = Math.random()*TAU, s = 30 + Math.random()*90; FX.bits.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s, life: .6 + Math.random()*.6, col, sz: 2 + Math.random()*3 }); } }
+function ftext(x, y, t, col='#fff3dc'){ FX.texts.push({ x, y, t, col, life: 1.4 }); }
+function stepFx(dt){
+  FX.ripples.forEach(r => { r.r += (r.max - r.r)*dt*2.4 + 8*dt; r.life -= dt*1.1; });
+  FX.ripples = FX.ripples.filter(r => r.life > 0);
+  FX.bits.forEach(b => { b.x += b.vx*dt; b.y += b.vy*dt; b.vx *= .92; b.vy *= .92; b.life -= dt; });
+  FX.bits = FX.bits.filter(b => b.life > 0);
+  FX.texts.forEach(t => { t.y -= 22*dt; t.life -= dt; });
+  FX.texts = FX.texts.filter(t => t.life > 0);
+  FX.shake = Math.max(0, FX.shake - dt);
+  if (FX.splat){ FX.splat.t += dt; if (FX.splat.t >= FX.splat.life) FX.splat = null; }
+}
+
+/* ================= 渲染 ================= */
+let T = 0;
+function render(view){
+  ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+  const sx = FX.shake ? (Math.random()-.5)*6*FX.shake : 0;
+  // 夜市桌面与灯笼光
+  ctx.fillStyle = '#22160f'; ctx.fillRect(0, 0, W, H);
+  let g = ctx.createRadialGradient(70, -10, 10, 70, -10, 260); g.addColorStop(0, 'rgba(255,150,70,.42)'); g.addColorStop(1, 'rgba(255,150,70,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  g = ctx.createRadialGradient(310, 660, 10, 310, 660, 240); g.addColorStop(0, 'rgba(255,80,60,.25)'); g.addColorStop(1, 'rgba(255,80,60,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,0,0,.18)'; for (let y=8;y<H;y+=22) ctx.fillRect(0, y, W, 1);
+  ctx.save(); ctx.translate(sx, 0);
+  // 塑料盆
+  rrect(8, 58, 344, 524, 30); g = ctx.createLinearGradient(0, 58, 0, 582); g.addColorStop(0, '#4b9cf0'); g.addColorStop(1, '#1f5fbf'); ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 2; rrect(10, 60, 340, 520, 28); ctx.stroke();
+  ctx.save(); rrect(17, 67, 326, 506, 22); ctx.clip();
+  g = ctx.createLinearGradient(0, 67, 0, 573); g.addColorStop(0, '#63d4ee'); g.addColorStop(.55, '#2fa9d8'); g.addColorStop(1, '#1f86c2'); ctx.fillStyle = g; ctx.fillRect(17, 67, 326, 506);
+  ctx.fillStyle = 'rgba(255,255,255,.05)'; for (let y=80;y<573;y+=26) for (let x=30;x<343;x+=26) ctx.fillRect(x, y, 2, 2);
+  if (!causticPat) causticPat = ctx.createPattern(caustic, 'repeat');
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = .1; ctx.save(); ctx.translate((T*9) % 220, (T*5) % 220); ctx.fillStyle = causticPat; ctx.fillRect(-220, -220, W + 440, H + 440); ctx.restore();
+  ctx.globalAlpha = .08; ctx.save(); ctx.translate(-(T*7) % 220, (T*11) % 220); ctx.scale(1.3, 1.3); ctx.fillStyle = causticPat; ctx.fillRect(-220, -220, W + 440, H + 440); ctx.restore();
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  // 鱼影
+  ctx.fillStyle = 'rgba(6,50,90,.22)';
+  view.fish.forEach((f, i) => { if (!f.alive) return; const ap = view.app[i]; ctx.save(); ctx.translate(f.x + 4, f.y + 8); ctx.rotate(f.a); ctx.beginPath(); ctx.ellipse(-2, 0, 15*ap.size, 6*ap.size, 0, 0, TAU); ctx.fill(); ctx.restore(); });
+  // 饵
+  view.food.forEach(p => { ctx.fillStyle = '#b8742c'; ctx.beginPath(); ctx.arc(p.x, p.y, 3.2, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,220,160,.8)'; ctx.beginPath(); ctx.arc(p.x - 1, p.y - 1, 1.1, 0, TAU); ctx.fill(); });
+  // 自己的鱼的标记（只在自己屏幕上）
+  if (view.me >= 0 && view.fish[view.me] && view.fish[view.me].alive){
+    const f = view.fish[view.me]; ctx.save(); ctx.translate(f.x, f.y);
+    ctx.strokeStyle = 'rgba(246,196,69,.9)'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.lineDashOffset = -T*14;
+    ctx.beginPath(); ctx.arc(0, 0, 21, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+  }
+  if (view.net && view.net.t >= CFG.castDrop && view.net.t < CFG.castResolve) drawNet(view.net.x, view.net.y, view.net.t, view.dur);
+  // 鱼
+  view.fish.forEach((f, i) => { if (f.alive) drawFish(f, view.app[i]); });
+  // 水面高光
+  ctx.fillStyle = 'rgba(255,214,160,.10)';
+  ctx.beginPath(); ctx.ellipse(110 + Math.sin(T*.4)*8, 150, 70, 22, -.3, 0, TAU); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(250 + Math.cos(T*.3)*8, 120, 40, 12, -.3, 0, TAU); ctx.fill();
+  // 波纹
+  FX.ripples.forEach(r => { ctx.strokeStyle = `rgba(255,255,255,${r.a*r.life})`; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, TAU); ctx.stroke(); });
+  // 盆内侧阴影
+  ctx.lineWidth = 16; ctx.strokeStyle = 'rgba(8,40,90,.22)'; rrect(17, 67, 326, 506, 22); ctx.stroke();
+  // 揭晓
+  if (view.reveal >= 0 && view.fish[view.reveal]){
+    const f = view.fish[view.reveal];
+    ctx.fillStyle = 'rgba(6,20,40,.5)'; ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.arc(f.x, f.y, 34, 0, TAU, true); ctx.fill('evenodd');
+    if (!f.alive) drawFish(f, view.app[view.reveal]);
+    ctx.strokeStyle = '#f6c445'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(f.x, f.y, 30 + Math.sin(T*5)*2, 0, TAU); ctx.stroke();
+    ctx.font = '700 15px "ZCOOL KuaiLe", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#f6c445'; ctx.fillText('真鱼在这', f.x, f.y - 42);
+  }
+  ctx.restore();
+  drawSplat();
+  // 网
+  if (view.net && !(view.net.t >= CFG.castDrop && view.net.t < CFG.castResolve)) drawNet(view.net.x, view.net.y, view.net.t, view.dur);
+  // 纸屑与文字
+  FX.bits.forEach(b => { ctx.globalAlpha = clamp(b.life*1.6, 0, 1); ctx.fillStyle = b.col; ctx.fillRect(b.x, b.y, b.sz, b.sz); });
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'center'; ctx.font = '700 17px "ZCOOL KuaiLe", sans-serif';
+  FX.texts.forEach(t => { ctx.globalAlpha = clamp(t.life, 0, 1); ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(30,20,10,.6)'; ctx.strokeText(t.t, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.t, t.x, t.y); });
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+/* ================= 声音 ================= */
+let AC = null, noiseBuf = null;
+function ac(){ if (!AC){ try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } if (AC && AC.state === 'suspended') AC.resume(); return AC; }
+function tone(f, d, type='sine', v=.05, slide=0, delay=0){ const a = ac(); if (!a) return; const t0 = a.currentTime + delay, o = a.createOscillator(), gn = a.createGain(); o.type = type; o.frequency.setValueAtTime(f, t0); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), t0 + d); gn.gain.setValueAtTime(v, t0); gn.gain.exponentialRampToValueAtTime(.0001, t0 + d); o.connect(gn); gn.connect(a.destination); o.start(t0); o.stop(t0 + d + .02); }
+function noise(d, v=.08, freq=1200){ const a = ac(); if (!a) return; if (!noiseBuf){ noiseBuf = a.createBuffer(1, a.sampleRate*.6, a.sampleRate); const ch = noiseBuf.getChannelData(0); for (let i=0;i<ch.length;i++) ch[i] = Math.random()*2-1; }
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), gn = a.createGain(); s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = freq; gn.gain.setValueAtTime(v, a.currentTime); gn.gain.exponentialRampToValueAtTime(.0001, a.currentTime + d); s.connect(f); f.connect(gn); gn.connect(a.destination); s.start(); s.stop(a.currentTime + d); }
+const SFX = {
+  tap: () => tone(700, .05, 'triangle', .04),
+  dip: () => { noise(.25, .07, 900); tone(260, .2, 'sine', .04, -120); },
+  lift: () => noise(.18, .06, 1800),
+  plop: () => tone(520, .12, 'sine', .05, -260),
+  rip: () => { noise(.35, .12, 2600); tone(180, .2, 'sawtooth', .03, -60); },
+  knock: () => { tone(90, .35, 'sine', .14, -40); noise(.15, .08, 300); },
+  scoop: () => [660, 880].forEach((f, i) => tone(f, .12, 'triangle', .05, 0, i*.08)),
+  win: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, .16, 'triangle', .06, 0, i*.11)),
+  lose: () => [392, 330, 262].forEach((f, i) => tone(f, .22, 'triangle', .06, 0, i*.15)),
+  go: () => { tone(440, .12, 'square', .04); tone(880, .2, 'square', .04, 0, .12); },
+  spit: () => { tone(320, .08, 'square', .05, 300); noise(.4, .12, 1400); },
+  beep: () => tone(440, .1, 'square', .035),
+};
+document.addEventListener('pointerdown', () => ac(), { once: true });
+/* ================= BGM：界面一首、游戏中一首，无缝循环 ================= */
+const TRACKS = {
+  lobby: { src: 'audio/bgm-lobby.mp3', ls: 39.34, le: 78.75, xf: .08, vol: .42 },
+  game:  { src: 'audio/bgm-game.mp3',  ls: 6.09,  le: 44.5,  xf: .6,  vol: .38 },
+};
+const BGM = { raw: {}, buf: {}, cur: null, curName: '', want: 'lobby', master: null, muted: false, started: false };
+try { BGM.muted = localStorage.getItem('hs.mute') === '1'; } catch(e){}
+Object.entries(TRACKS).forEach(([k, t]) => { BGM.raw[k] = fetch(t.src).then(r => r.ok ? r.arrayBuffer() : null).catch(() => null); });
+function decode(a, ab){ return new Promise(res => { try { const p = a.decodeAudioData(ab, res, () => res(null)); if (p && p.then) p.then(res, () => res(null)); } catch(e){ res(null); } }); }
+async function getBuf(name){
+  if (BGM.buf[name] !== undefined) return BGM.buf[name];
+  const a = ac(); const ab = await BGM.raw[name]; if (!a || !ab) return (BGM.buf[name] = null);
+  BGM.buf[name] = await decode(a, ab.slice(0)); return BGM.buf[name];
+}
+function bgmSeg(st, when, off, dur, fadeIn){
+  const a = AC, s = a.createBufferSource(), g = a.createGain(), xf = st.tr.xf, end = when + dur;
+  s.buffer = st.buf; s.connect(g); g.connect(st.out);
+  if (fadeIn){ g.gain.setValueAtTime(0, when); g.gain.linearRampToValueAtTime(1, when + xf); } else g.gain.setValueAtTime(1, when);
+  g.gain.setValueAtTime(1, end - xf); g.gain.linearRampToValueAtTime(0, end);
+  s.start(when, Math.max(0, off), dur); st.srcs.push(s); st.nextT = end - xf;
+  s.onended = () => { st.srcs = st.srcs.filter(x => x !== s); };
+}
+function bgmStop(st, fade=.5){
+  if (!st) return; clearInterval(st.timer);
+  const now = AC.currentTime; st.out.gain.cancelScheduledValues(now); st.out.gain.setValueAtTime(st.out.gain.value, now); st.out.gain.linearRampToValueAtTime(0, now + fade);
+  st.srcs.forEach(s => { try { s.stop(now + fade + .05); } catch(e){} });
+}
+async function bgmPlay(name){
+  if (BGM.curName === name) return;
+  BGM.curName = name; bgmStop(BGM.cur); BGM.cur = null;
+  const buf = await getBuf(name); const a = AC;
+  if (!buf || !a || BGM.curName !== name) return;
+  if (!BGM.master){ BGM.master = a.createGain(); BGM.master.gain.value = BGM.muted ? 0 : 1; BGM.master.connect(a.destination); }
+  const tr = TRACKS[name], out = a.createGain(), t0 = a.currentTime + .05;
+  out.gain.setValueAtTime(0, t0); out.gain.linearRampToValueAtTime(tr.vol, t0 + .4); out.connect(BGM.master);
+  const st = { tr, buf, out, srcs: [], nextT: 0, timer: 0 };
+  bgmSeg(st, t0, 0, Math.min(tr.le, buf.duration), false);
+  const feed = () => { while (st.nextT - a.currentTime < 3) bgmSeg(st, st.nextT, tr.ls - tr.xf, tr.le - tr.ls + tr.xf, true); };
+  feed(); st.timer = setInterval(feed, 700);
+  BGM.cur = st;
+}
+function bgmUpdate(){
+  if (!BGM.started) return;
+  const inGame = !$('#hud').hidden && $('#s-end').hidden;
+  const want = inGame ? 'game' : 'lobby';
+  if (want !== BGM.curName) bgmPlay(want);
+}
+function setMute(m){
+  BGM.muted = m; try { localStorage.setItem('hs.mute', m ? '1' : '0'); } catch(e){}
+  if (BGM.master && AC){ const now = AC.currentTime; BGM.master.gain.cancelScheduledValues(now); BGM.master.gain.setValueAtTime(BGM.master.gain.value, now); BGM.master.gain.linearRampToValueAtTime(m ? 0 : 1, now + .2); }
+  $('#mute-x').hidden = !m; $('#mute').setAttribute('aria-label', m ? '打开音乐' : '关闭音乐');
+}
+setMute(BGM.muted);
+$('#mute').addEventListener('click', e => { e.stopPropagation(); ac(); BGM.started = true; setMute(!BGM.muted); bgmUpdate(); });
+document.addEventListener('pointerdown', () => { if (!BGM.started){ ac(); BGM.started = true; bgmUpdate(); } }, true);
+document.addEventListener('visibilitychange', () => { if (!AC) return; if (document.hidden) AC.suspend(); else if (BGM.started) AC.resume(); });
+
+function vib(p){ try { navigator.vibrate && navigator.vibrate(p); } catch(e){} }
+
+/* ================= 界面工具 ================= */
+const SCREENS = ['title', 'rules', 'join', 'room', 'end'];
+function show(id){ SCREENS.forEach(s => { $('#s-' + s).hidden = s !== id; }); if (id === 'join') $('#in-nick2').value = $('#in-nick').value; }
+let toastT = null;
+function toast(t, ms=1500){ const el = $('#toast'); el.hidden = true; void el.offsetWidth; el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, ms); }
+let bannerT = null;
+function banner(t, ms=800){ const el = $('#banner'); el.hidden = true; void el.offsetWidth; el.textContent = t; el.hidden = false; clearTimeout(bannerT); bannerT = setTimeout(() => el.hidden = true, ms); }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+function nick(){ return ($('#in-nick').value.trim() || '小鱼干').slice(0, 8); }
+try { const n = localStorage.getItem('hs.nick'); if (n) $('#in-nick').value = n; } catch(e){}
+$('#in-nick').addEventListener('change', () => { try { localStorage.setItem('hs.nick', nick()); } catch(e){} });
+
+/* ================= 运行模式 ================= */
+// M.kind: demo | local | online ； M.role: fish | net | watch
+const M = { kind: 'demo', role: 'watch', game: null, bot: null, endShown: false, lastPh: '', lastCount: -1 };
+const FI = { hold: false, tx: 0, ty: 0, dash: 0, spit: 0, spitLeft: 2, lastTap: 0, lx: 0, ly: 0 };
+const L = { castSeq: 0, cmd: null, cast: null, foodSeq: 0, food: null, knockSeq: 0, knock: null, armed: false, foodLeft: 0, knockLeft: 0 };
+function resetLocalInputs(){
+  FX.splat = null;
+  Object.assign(FI, { hold: false, dash: 0, spit: 0, spitLeft: CFG.spitUses, lastTap: 0 });
+  Object.assign(L, { castSeq: 0, cmd: null, cast: null, foodSeq: 0, food: null, knockSeq: 0, knock: null, armed: false, foodLeft: CFG.foodUses, knockLeft: CFG.knockUses });
+}
+function netInput(){ return { cast: L.cmd, food: L.food, knock: L.knock }; }
+
+function onGameEvent(e, remote){
+  const mine = M.role === 'net' && remote;
+  switch (e.k){
+    case 'dip': if (!mine){ ripple(e.x, e.y, 46); SFX.dip(); } break;
+    case 'lift': ripple(e.x, e.y, 40, .55); SFX.lift(); bits(e.x, e.y, 8, 'rgba(220,245,255,.9)'); break;
+    case 'miss': ftext(e.x, e.y - 34, '空网', '#d8ecf5'); break;
+    case 'scoop': ftext(e.x, e.y - 34, `捞错 ${e.c} 条`, '#ffd9a8'); SFX.scoop(); bits(e.x, e.y, 10, 'rgba(255,255,255,.9)'); if (M.role === 'fish'){ toast('有鱼被捞走了，盆里更空了'); } break;
+    case 'tear': ftext(e.x, e.y - 34, '纸网泡破了', '#ffb4a8'); SFX.rip(); bits(e.x, e.y, 18, '#ffffff'); if (M.role === 'net') vib(40); break;
+    case 'break': ftext(e.x, e.y - 34, '太重了，网破了', '#ffb4a8'); SFX.rip(); bits(e.x, e.y, 22, '#ffffff'); ripple(e.x, e.y, 50); if (M.role === 'net') vib(60); break;
+    case 'food': if (mine) break; for (let k=0;k<4;k++) setTimeout(() => { ripple(e.x + (Math.random()-.5)*28, e.y + (Math.random()-.5)*28, 18, .7); SFX.plop(); }, k*70); break;
+    case 'knock': if (!mine){ FX.shake = .5; SFX.knock(); ripple(180, 320, 260, .35); } vib(50); break;
+    case 'caught': ripple(e.x, e.y, 70); bits(e.x, e.y, 20, '#bff4ff'); vib([80, 40, 120]); break;
+    case 'go': banner('开捞！', 900); SFX.go(); break;
+    case 'spit': SFX.spit(); if (M.role === 'net') blind(e.c); else if (M.role === 'fish'){ const g = M.game, f = g && g.fish[g.player]; if (f) ftext(f.x, f.y - 26, '噗！', '#bff4ff'); } else ftext(180, 300, '有鱼吐口水了', '#bff4ff'); break;
+  }
+}
+
+function startDemo(){
+  M.kind = 'demo'; M.role = 'watch';
+  M.game = new Game(Math.floor(Math.random()*1e9), { demo: true }); M.bot = null;
+  $('#hud').hidden = true; $('#ctrl').hidden = true; $('#banner').hidden = true;
+  show('title');
+}
+
+function startLocal(role){
+  ac(); resetLocalInputs();
+  M.kind = 'local'; M.role = role; M.endShown = false; M.lastCount = -1;
+  M.game = new Game(Math.floor(Math.random()*1e9), { botFish: role === 'net' });
+  M.game.onEvent = e => onGameEvent(e, false);
+  M.bot = role === 'fish' ? new BotNet(M.game) : null;
+  enterPlayUI();
+}
+
+function enterPlayUI(){
+  show(null); $('#hud').hidden = false; $('#ctrl').hidden = false;
+  $('#h-role').textContent = M.role === 'net' ? '捞鱼人' : M.role === 'fish' ? '你是鱼' : '观战';
+  $('#t-food').hidden = $('#t-knock').hidden = M.role !== 'net';
+  $('#t-spit').hidden = M.role !== 'fish';
+  $('#c-hint').textContent = M.role === 'net' ? '点水面下网，网会慢慢沉下去再捞起' : M.role === 'fish' ? '金圈是你。按住游动，双击冲刺' : '观战中：猜猜哪条是真人';
+  updateTools();
+}
+function updateTools(){
+  $('#t-food-n').textContent = L.foodLeft; $('#t-knock-n').textContent = L.knockLeft;
+  $('#t-food').disabled = L.foodLeft <= 0; $('#t-knock').disabled = L.knockLeft <= 0;
+  $('#t-food').setAttribute('aria-pressed', L.armed ? 'true' : 'false');
+  $('#t-spit-n').textContent = FI.spitLeft; $('#t-spit').disabled = FI.spitLeft <= 0;
+  if (M.role === 'net') $('#c-hint').textContent = L.armed ? '点一下水面撒饵' : '点水面下网，网会慢慢沉下去再捞起';
+}
+
+/* ================= 输入 ================= */
+let activePtr = null;
+function toWorld(e){ const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left)/r.width*W, y: (e.clientY - r.top)/r.height*H }; }
+const inPond = p => p.x > 14 && p.x < 346 && p.y > 62 && p.y < 578;
+function playing(){ return curPh() === 'play'; }
+cv.addEventListener('pointerdown', e => {
+  if (M.kind === 'demo') return;
+  const p = toWorld(e); if (!inPond(p)) return;
+  if (M.role === 'net'){
+    if (!playing()) return;
+    if (L.armed){ if (L.foodLeft > 0){ L.food = { s: ++L.foodSeq, x: p.x, y: p.y }; L.foodLeft--; if (M.kind === 'online'){ onGameEvent({ k: 'food', x: p.x, y: p.y }, false); } } L.armed = false; updateTools(); return; }
+    const busy = L.cast || (M.kind === 'local' && M.game && M.game.cast);
+    if (busy){ toast('网还在水里'); return; }
+    const x = Math.round(clamp(p.x, 20, 340)), y = Math.round(clamp(p.y, 70, 570));
+    L.cmd = { s: ++L.castSeq, x, y }; L.cast = { x, y, t: 0 };
+    if (M.kind === 'online'){ ripple(x, y, 46); SFX.dip(); }
+    vib(10);
+  } else if (M.role === 'fish'){
+    activePtr = e.pointerId; try { cv.setPointerCapture(e.pointerId); } catch(err){}
+    FI.hold = true; FI.tx = p.x; FI.ty = p.y;
+    const now = performance.now();
+    if (now - FI.lastTap < 300 && Math.hypot(p.x - FI.lx, p.y - FI.ly) < 48){ FI.dash++; FI.lastTap = 0; vib(15); }
+    else { FI.lastTap = now; FI.lx = p.x; FI.ly = p.y; }
+  }
+});
+cv.addEventListener('pointermove', e => {
+  if (e.pointerId !== activePtr) return; const p = toWorld(e);
+  if (M.role === 'fish'){ FI.tx = p.x; FI.ty = p.y; }
+});
+function release(e){
+  if (e.pointerId !== activePtr) return; activePtr = null;
+  if (M.role === 'fish') FI.hold = false;
+}
+cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', release);
+$('#t-food').addEventListener('click', () => { if (L.foodLeft > 0 && playing()){ L.armed = !L.armed; SFX.tap(); updateTools(); } });
+$('#t-knock').addEventListener('click', () => { if (L.knockLeft > 0 && playing()){ L.knock = { s: ++L.knockSeq }; L.knockLeft--; if (M.kind === 'online') onGameEvent({ k: 'knock' }, false); updateTools(); } });
+$('#t-spit').addEventListener('click', () => {
+  if (FI.spitLeft <= 0 || !playing()) return;
+  const g = M.game; if (g && g.blindT > 0){ toast('口水还没散'); return; }
+  FI.spitLeft--; FI.spit++; vib(25); updateTools();
+});
+
+
+/* ================= 联机：连接自带服务器（WebSocket） ================= */
+function makeRoom(){
+  const wsURL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws';
+  return { join(name){ return new Promise((resolve, reject) => {
+    const R = { you: null, ws: null, others: new Map(), mine: {}, snap: [], dirty: false, closed: false, timer: 0 };
+    let settled = false;
+    const rebuild = () => { const a = []; if (R.you) a.push({ peer: R.you, presence: R.mine, sameTab: true, isMe: true }); R.others.forEach((p, id) => a.push({ peer: id, presence: p, sameTab: false, isMe: false })); R.snap = a; };
+    const api = {
+      name, peers: () => R.snap,
+      presence(patch){ const m = { ...R.mine }; for (const k in patch){ if (patch[k] === null) delete m[k]; else m[k] = patch[k]; } R.mine = m; R.dirty = true; rebuild(); return Promise.resolve(); },
+      async leave(){ R.closed = true; clearInterval(R.timer); try { R.ws.close(); } catch(e){} },
+      connected: () => !!R.ws && R.ws.readyState === 1,
+    };
+    const connect = () => {
+      const ws = new WebSocket(wsURL); R.ws = ws;
+      ws.onopen = () => ws.send(JSON.stringify({ t: 'join', room: name, presence: R.mine }));
+      ws.onmessage = ev => {
+        let m; try { m = JSON.parse(ev.data); } catch(e){ return; }
+        if (m.t === 'welcome'){ R.you = m.you; R.others = new Map((m.peers || []).map(p => [p.id, p.presence || {}])); rebuild(); if (!settled){ settled = true; resolve(api); } }
+        else if (m.t === 'p'){ R.others.set(m.id, m.presence || {}); rebuild(); }
+        else if (m.t === 'leave'){ R.others.delete(m.id); rebuild(); }
+        else if (m.t === 'full'){ R.closed = true; ws.close(); if (!settled){ settled = true; reject({ code: 'limit_reached' }); } }
+      };
+      ws.onclose = () => { if (R.closed) return; R.others.clear(); rebuild(); setTimeout(() => { if (!R.closed) connect(); }, 1000); };
+      ws.onerror = () => {};
+    };
+    R.timer = setInterval(() => { if (R.dirty && R.ws && R.ws.readyState === 1){ R.dirty = false; R.ws.send(JSON.stringify({ t: 'p', presence: R.mine })); } }, 50);
+    connect();
+    setTimeout(() => { if (!settled){ settled = true; R.closed = true; clearInterval(R.timer); try { R.ws.close(); } catch(e){} reject({ code: 'upstream_error' }); } }, 8000);
+  }); } };
+}
+/* ================= 联机房间 ================= */
+const ON = { room: null, ready: false, g: null, code: '', creator: false, role: 'net', go: 0, lastGo: 0, gid: '', lastSt: null, lastEv: 0, appSeed: -1, app: null, rf: [], st: null, inGame: false, lostAt: 0 };
+(async () => {
+  ON.room = typeof WebSocket !== 'undefined' ? makeRoom() : null;
+  ON.ready = true; updateOnlineAvailability();
+})();
+function updateOnlineAvailability(){
+  const ok = !!ON.room;
+  $('#go-create').disabled = !ok; $('#go-join').disabled = !ok;
+  const note = $('#online-note');
+  if (!ON.ready){ note.hidden = false; note.textContent = '正在连接联机服务…'; }
+  else if (!ok){ note.hidden = false; note.textContent = '这个浏览器不支持联机，先试试下面的单人练习。'; }
+  else note.hidden = true;
+}
+updateOnlineAvailability();
+
+function hsPeers(){ return ON.g ? ON.g.peers().filter(p => p.presence && p.presence.app === 'hs1') : []; }
+function opp(role){ return role === 'fish' ? 'net' : 'fish'; }
+function pres(patch){ if (ON.g) ON.g.presence(patch).catch(() => {}); }
+
+async function enterRoom(code, creator){
+  ac();
+  try { ON.g = await ON.room.join('hs-' + code); }
+  catch(e){ toast(e && e.code === 'limit_reached' ? '这个房间人满了' : '连不上服务器，检查一下网络'); return; }
+  Object.assign(ON, { code, creator, go: 0, lastGo: 0, gid: '', inGame: false, lastSt: null });
+  ON.role = creator ? 'net' : 'net';
+  pres({ app: 'hs1', nick: nick(), role: ON.role, cr: creator ? 1 : 0, go: 0, st: null, ca: null, fo: null, kn: null });
+  M.kind = 'online'; M.role = 'watch'; M.game = M.game || new Game(1, { demo: true });
+  $('#room-code').textContent = code;
+  show('room'); renderRoom();
+}
+$('#go-create').addEventListener('click', () => {
+  const A = 'abcdefghjkmnpqrstuvwxyz23456789'; let c = ''; for (let i=0;i<4;i++) c += A[Math.floor(Math.random()*A.length)];
+  SFX.tap(); enterRoom(c, true);
+});
+$('#go-join').addEventListener('click', () => { SFX.tap(); $('#in-code').value = ''; show('join'); setTimeout(() => $('#in-code').focus(), 50); });
+$('#join-back').addEventListener('click', () => { SFX.tap(); show('title'); });
+$('#join-go').addEventListener('click', () => {
+  const n2 = $('#in-nick2').value.trim(); if (n2){ $('#in-nick').value = n2; try { localStorage.setItem('hs.nick', n2.slice(0, 8)); } catch(e){} }
+  const c = $('#in-code').value.trim().toLowerCase();
+  if (!/^[a-z0-9]{4}$/.test(c)){ toast('房间号是 4 位字母或数字'); return; }
+  SFX.tap(); enterRoom(c, false);
+});
+$('#role-fish').addEventListener('click', () => setMyRole('fish'));
+$('#role-net').addEventListener('click', () => setMyRole('net'));
+function setMyRole(r){ if (!ON.creator || ON.inGame) return; ON.role = r; pres({ role: r, st: null }); SFX.tap(); renderRoom(); }
+$('#room-start').addEventListener('click', () => { if (!ON.creator) return; ON.go++; pres({ go: ON.go }); SFX.tap(); });
+$('#room-leave').addEventListener('click', leaveRoom);
+$('#room-copy').addEventListener('click', async () => {
+  const link = location.origin + location.pathname + '?room=' + ON.code;
+  try { await navigator.clipboard.writeText(link); toast('已复制，发给好友吧'); }
+  catch(e){ window.prompt('长按复制这个链接', link); }
+});
+async function leaveRoom(){ SFX.tap(); try { await ON.g?.leave(); } catch(e){} ON.g = null; ON.inGame = false; startDemo(); }
+
+function resolveRoles(){
+  // 房主自己选身份，加入的人自动拿另一个；多出来的人观战
+  const ps = hsPeers(), me = ps.find(p => p.sameTab);
+  if (!ON.creator){
+    const host = ps.find(p => p.presence.cr === 1 && !p.sameTab);
+    let want = host ? opp(host.presence.role) : 'watch';
+    if (host){ const rivals = ps.filter(p => !p.sameTab && p.presence.cr !== 1 && p.presence.role === want && p.peer < (me ? me.peer : 'zzz')); if (rivals.length) want = 'watch'; }
+    if (want !== ON.role && !ON.inGame){ ON.role = want; pres({ role: want, st: null }); }
+  }
+  return ps;
+}
+function renderRoom(){
+  const ps = hsPeers(), mine = ps.find(p => p.sameTab);
+  const others = ps.filter(p => !p.sameTab);
+  const rolesTxt = { fish: '藏', net: '捞', watch: '观战' };
+  let rows = `<div class="pl"><span class="dot"></span>${esc(nick())}（你）<span class="rt ${ON.role}">${rolesTxt[ON.role]}</span></div>`;
+  others.forEach(p => { rows += `<div class="pl"><span class="dot"></span>${esc(String(p.presence.nick || '好友').slice(0, 8))}${p.presence.cr === 1 ? '（房主）' : ''}<span class="rt ${p.presence.role}">${rolesTxt[p.presence.role] || '观战'}</span></div>`; });
+  if (!others.length) rows += `<div class="pl wait"><span class="dot"></span>等好友加入…</div>`;
+  $('#players').innerHTML = rows;
+  $('#role-seg').hidden = !ON.creator;
+  $('#role-fish').setAttribute('aria-pressed', ON.role === 'fish'); $('#role-net').setAttribute('aria-pressed', ON.role === 'net');
+  const hasOpp = others.some(p => p.presence.role === opp(ON.role));
+  const st = $('#room-start');
+  $('#room-copy').hidden = !ON.creator;
+  if (ON.creator){ st.hidden = false; st.disabled = !hasOpp; st.textContent = hasOpp ? '开始' : '等对手进来'; $('#room-tip').textContent = '点「复制邀请链接」发给好友，他打开就能进房间。'; }
+  else { st.hidden = true; const host = others.find(p => p.presence.cr === 1); $('#room-tip').textContent = host ? `等 ${String(host.presence.nick || '房主').slice(0, 8)} 开局` : '房主还没在这个房间里，确认房间号是否正确'; }
+}
+
+let roomTick = 0;
+function onlineFrame(dt){
+  if (!ON.g) return;
+  const ps = resolveRoles();
+  roomTick += dt; if (roomTick > .3 && !$('#s-room').hidden){ roomTick = 0; renderRoom(); }
+  const others = ps.filter(p => !p.sameTab);
+  // 鱼方是主机：负责模拟和广播
+  if (ON.role === 'fish'){
+    const creatorP = ON.creator ? null : others.find(p => p.presence.cr === 1);
+    const goVal = ON.creator ? ON.go : (creatorP ? (creatorP.presence.go || 0) : 0);
+    const netP = others.find(p => p.presence.role === 'net');
+    if (goVal > ON.lastGo && netP){
+      ON.lastGo = goVal; resetLocalInputs();
+      const gm = new Game(Math.floor(Math.random()*1e9)); gm.onEvent = e => onGameEvent(e, false);
+      M.game = gm; M.role = 'fish'; M.endShown = false; M.lastCount = -1; ON.inGame = true; ON.lostAt = 0; enterPlayUI();
+    } else if (goVal > ON.lastGo) ON.lastGo = goVal;
+    if (ON.inGame && M.game && !M.game.demo){
+      const nin = netP ? remoteNetIn(netP.presence) : {};
+      M.game.step(dt, FI, nin);
+      pres({ st: M.game.snap() });
+      if (!netP && M.game.ph !== 'end'){ ON.lostAt += dt; if (ON.lostAt > 5){ M.game.end('fish', 'left'); } } else ON.lostAt = 0;
+    }
+  } else {
+    if (ON.creator && ON.lastGo !== ON.go) ON.lastGo = ON.go;
+    const hostP = others.find(p => p.presence.role === 'fish' && p.presence.st);
+    const st = hostP ? hostP.presence.st : null;
+    if (st && st !== ON.lastSt){
+      ON.lastSt = st;
+      if (st.g !== ON.gid){
+        ON.gid = st.g; ON.lastEv = 0; ON.rf = []; resetLocalInputs();
+        if (st.ph !== 'end'){ M.role = ON.role === 'net' ? 'net' : 'watch'; M.endShown = false; M.lastCount = -1; ON.inGame = true; enterPlayUI(); }
+      }
+      applySnap(st);
+    }
+    if (ON.inGame){
+      ON.lostAt = hostP ? 0 : ON.lostAt + dt;
+      if (ON.lostAt > 5){ ON.inGame = false; toast('对方离开了'); show('room'); $('#hud').hidden = true; $('#ctrl').hidden = true; }
+    }
+    if (ON.role === 'net'){
+      pres({ ca: L.cmd, fo: L.food, kn: L.knock });
+    }
+  }
+}
+function remoteNetIn(p){
+  const i = p.inp || {};
+  const num = v => (typeof v === 'number' && isFinite(v)) ? v : 0;
+  const s = o => (o && typeof o === 'object') ? { s: num(o.s), x: clamp(num(o.x), 0, W), y: clamp(num(o.y), 0, H) } : null;
+  return { cast: s(p.ca), food: s(p.fo), knock: p.kn && typeof p.kn === 'object' ? { s: num(p.kn.s) } : null };
+}
+function applySnap(st){
+  if (st.sd !== ON.appSeed){ ON.appSeed = st.sd; ON.app = appearances(st.sd); }
+  const parts = String(st.f || '').split(';');
+  for (let i=0;i<CFG.fishCount;i++){
+    const s = parts[i] || '', rf = ON.rf[i] || (ON.rf[i] = { x: 180, y: 320, a: 0, v: 0, ph: Math.random()*6, alive: false, has: false });
+    if (!s){ rf.alive = false; continue; }
+    const [x, y, a, v] = s.split('.').map(n => parseInt(n, 36));
+    rf.tx = x/2; rf.ty = y/2; rf.ta = a/255*TAU; rf.v = v*4; rf.alive = true;
+    if (!rf.has){ rf.x = rf.tx; rf.y = rf.ty; rf.a = rf.ta; rf.has = true; }
+  }
+  ON.st = st;
+  (st.ev || []).forEach(e => { if (e && e.s > ON.lastEv){ ON.lastEv = e.s; onGameEvent(e, true); } });
+}
+function smoothRemote(dt){
+  const k = 1 - Math.exp(-dt*14);
+  ON.rf.forEach(f => { if (!f.alive || !f.has) return; f.x += (f.tx - f.x)*k; f.y += (f.ty - f.y)*k; f.a += angDiff(f.ta, f.a)*k; f.ph += (4 + f.v*.16)*dt; });
+}
+
+/* ================= 主循环 ================= */
+function curPh(){ if (M.kind === 'online' && ON.role !== 'fish') return ON.st && ON.inGame ? ON.st.ph : 'idle'; return M.game ? M.game.ph : 'idle'; }
+function updateNetLocal(dt){
+  if (L.cast){ L.cast.t += dt; if (L.cast.t >= CFG.castTotal) L.cast = null; }
+}
+function buildView(){
+  let v;
+  if (M.kind === 'online' && ON.role !== 'fish'){
+    const st = ON.st;
+    v = { fish: ON.rf.map(f => ({ x: f.x, y: f.y, a: f.a, v: f.v, ph: f.ph, alive: f.alive })), app: ON.app || appearances(1),
+      food: st && st.fo ? String(st.fo).split(';').filter(Boolean).map(s => { const [x, y] = s.split('.').map(Number); return { x, y }; }) : [],
+      me: -1, reveal: st && st.ph === 'end' ? st.rv : -1, dur: st ? st.d : 100, net: null };
+    if (ON.role === 'net' && ON.inGame){ if (L.cast) v.net = { x: L.cast.x, y: L.cast.y, t: L.cast.t }; }
+    else if (st && st.nt) v.net = { x: st.nt[0], y: st.nt[1], t: (st.nt[2] || 0)/100 };
+    if (v.reveal >= 0 && ON.rf[v.reveal] && !ON.rf[v.reveal].alive){ v.fish[v.reveal] = { ...v.fish[v.reveal], alive: false }; }
+  } else {
+    const g = M.game;
+    v = { fish: g.fish.map(f => ({ x: f.x, y: f.y, a: f.a, v: f.v, ph: f.ph, alive: f.alive && !f.caught })), app: g.app, food: g.food, me: M.role === 'fish' ? g.player : -1,
+      reveal: g.ph === 'end' ? g.player : -1, dur: g.dur, net: null };
+    if (g.ph === 'end' && g.caughtAt){ v.fish[g.player] = { ...v.fish[g.player], alive: false }; }
+    if (g.cast) v.net = { x: g.cast.x, y: g.cast.y, t: g.cast.t };
+  }
+  return v;
+}
+function hudInfo(){
+  if (M.kind === 'online' && ON.role !== 'fish'){ const s = ON.st || {}; return { ph: s.ph, cd: s.cd, tl: s.tl ?? CFG.duration, n: s.n ?? CFG.nets, d: s.d ?? 100, wr: s.wr || 0, w: s.w, why: s.why }; }
+  const g = M.game; return { ph: g.ph, cd: Math.ceil(g.cd), tl: Math.ceil(g.tl), n: g.nets, d: Math.round(g.dur), wr: g.wrong, w: g.winner, why: g.why };
+}
+function updateHud(){
+  if ($('#hud').hidden) return;
+  const h = hudInfo();
+  $('#h-time').textContent = h.ph === 'count' ? CFG.duration : h.tl;
+  $('#h-time-p').classList.toggle('warn', h.ph === 'play' && h.tl <= 10);
+  $('#h-wrong').textContent = h.wr;
+  let html = ''; for (let i=0;i<CFG.nets;i++){ const used = i >= h.n, cur = i === h.n - 1; html += `<div class="poi ${used ? 'used' : ''}" style="--d:${cur ? h.d : used ? 0 : 100}"></div>`; }
+  $('#h-nets').innerHTML = html;
+  if (h.ph === 'count' && h.cd !== M.lastCount){ M.lastCount = h.cd; if (h.cd > 0){ banner(String(h.cd), 700); SFX.beep(); } }
+  if (h.ph === 'end' && !M.endShown){ M.endShown = true; setTimeout(() => showEnd(h), 1900); }
+}
+
+function showEnd(h){
+  const role = M.role;
+  const netWin = h.w === 'net';
+  const iWon = (role === 'net' && netWin) || (role === 'fish' && !netWin);
+  const why = { caught: '真鱼被捞上来了', time: '时间到了', nets: '三张纸网都破了', left: '捞鱼人离开了' }[h.why] || '';
+  let big = role === 'watch' ? (netWin ? '捞到了' : '没捞到') : role === 'net' ? (netWin ? '捞到了！' : '它跑了') : (netWin ? '被捞走了' : '混过去了');
+  iWon || role === 'watch' ? SFX.win() : SFX.lose();
+  const netsUsed = CFG.nets - h.n;
+  let btns = '';
+  if (M.kind === 'local') btns = `<div class="row"><button class="btn" id="e-again">再来一局</button><button class="btn paper" id="e-swap">换成${role === 'net' ? '藏' : '捞'}</button></div><button class="btn ghost" id="e-home">回首页</button>`;
+  else if (ON.creator) btns = `<div class="row"><button class="btn" id="e-again">再来一局</button><button class="btn paper" id="e-swap">交换身份</button></div><button class="btn ghost" id="e-room">回房间</button>`;
+  else btns = `<p class="note">等房主开下一局</p><button class="btn paper" id="e-room">回房间</button>`;
+  $('#end-card').innerHTML = `
+    <div class="eyebrow" style="text-align:center">${netWin ? 'Got it' : 'Slipped away'}</div>
+    <div class="end-big ${iWon ? 'win' : ''}">${big}</div>
+    <p style="text-align:center">${why}。金圈里那条就是真鱼。</p>
+    <div class="stats"><div class="stat"><b>${h.wr}</b><span>捞错的鱼</span></div><div class="stat"><b>${netsUsed}</b><span>用掉的网</span></div><div class="stat"><b>${CFG.duration - h.tl}</b><span>用时（秒）</span></div></div>
+    ${btns}`;
+  const rv = buildViewSafe(); const rf = rv.reveal >= 0 ? rv.fish[rv.reveal] : null;
+  const card = $('#end-card');
+  if (rf && rf.y > 330){ card.style.top = '9%'; card.style.bottom = 'auto'; } else { card.style.top = ''; card.style.bottom = ''; }
+  $('#ctrl').hidden = true; show('end');
+  const again = $('#e-again'), swap = $('#e-swap'), home = $('#e-home'), room = $('#e-room');
+  if (M.kind === 'local'){
+    again.onclick = () => { SFX.tap(); startLocal(role); };
+    swap.onclick = () => { SFX.tap(); startLocal(role === 'net' ? 'fish' : 'net'); };
+    home.onclick = () => { SFX.tap(); startDemo(); };
+  } else {
+    if (again) again.onclick = () => { SFX.tap(); toRoom(); ON.go++; pres({ go: ON.go }); };
+    if (swap) swap.onclick = () => { SFX.tap(); toRoom(); setMyRole(opp(ON.role)); };
+    if (room) room.onclick = () => { SFX.tap(); toRoom(); };
+  }
+}
+function toRoom(){ ON.inGame = false; M.role = 'watch'; $('#hud').hidden = true; $('#ctrl').hidden = true; $('#banner').hidden = true; show('room'); renderRoom(); }
+
+let lastT = performance.now();
+function loop(now){
+  const dt = Math.min(.05, (now - lastT)/1000); lastT = now; T += dt;
+  if (M.kind === 'online') onlineFrame(dt);
+  if (M.role === 'net') updateNetLocal(dt);
+  if (M.kind === 'demo' || M.kind === 'local' || (M.kind === 'online' && ON.role === 'fish' && !ON.inGame)){
+    if (M.game){
+      const nin = M.kind === 'local' ? (M.role === 'net' ? netInput() : M.bot.step(dt)) : { down: false };
+      M.game.step(dt, M.role === 'fish' && M.kind === 'local' ? FI : { hold: false }, nin);
+    }
+  }
+  if (M.kind === 'online' && ON.role !== 'fish') smoothRemote(dt);
+  stepFx(dt);
+  const showRemote = M.kind === 'online' && ON.role !== 'fish' && ON.inGame;
+  if (M.game || showRemote) render(buildViewSafe());
+  updateHud(); bgmUpdate();
+  requestAnimationFrame(loop);
+}
+function buildViewSafe(){
+  if (M.kind === 'online' && ON.role !== 'fish' && !ON.inGame){ const g = M.game; return { fish: g.fish.map(f => ({ ...f, alive: f.alive })), app: g.app, food: [], me: -1, reveal: -1, dur: 100, net: null }; }
+  return buildView();
+}
+requestAnimationFrame(loop);
+
+/* ================= 首页 ================= */
+$('#go-pnet').addEventListener('click', () => { SFX.tap(); startLocal('net'); });
+$('#go-pfish').addEventListener('click', () => { SFX.tap(); startLocal('fish'); });
+$('#go-rules').addEventListener('click', () => { SFX.tap(); show('rules'); });
+$('#rules-ok').addEventListener('click', () => { SFX.tap(); show('title'); });
+startDemo();
+(function inviteFromLink(){
+  const code = (new URLSearchParams(location.search).get('room') || '').toLowerCase();
+  if (/^[a-z0-9]{4}$/.test(code)){ $('#in-code').value = code; show('join'); }
+})();
+</script>
+
+</body>
+</html>
